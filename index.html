@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080611">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <title>Plan Ninja Empanada | Cusco</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -1526,6 +1529,235 @@
       max-width: none;
     }
   }
+
+  /* Precio y botón siempre alineados al fondo, aunque las descripciones tengan distinto largo */
+  .menu-card { display: flex; flex-direction: column; }
+  .menu-card .card-img-wrap { flex-shrink: 0; }
+  .menu-card .card-body { flex: 1; display: flex; flex-direction: column; }
+  .menu-card .card-footer { margin-top: auto; }
+
+  /* =========================================================
+     RESPONSIVE COMPLETO · celular, tablet, laptop y pantallas grandes
+     ========================================================= */
+
+  /* --- Base --- */
+  html { scroll-padding-top: 3.6rem; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { -webkit-tap-highlight-color: transparent; }
+  img { max-width: 100%; }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--dorado); outline-offset: 3px; }
+  .hero { min-height: 100vh; min-height: 100svh; }
+
+  /* Corrección: las etiquetas "Edición Ninja / Dorada" no deben estirarse */
+  .menu-card .card-tag { align-self: flex-start; }
+
+  /* Espaciados fluidos: grandes en pantalla, compactos en celular */
+  .menu-section, .features-section, .testimonials-section, .cta-section {
+    padding: clamp(3.5rem, 8vw, 6rem) clamp(1rem, 4vw, 2rem);
+  }
+  .info-section { padding: clamp(3.25rem, 7vw, 5rem) clamp(1rem, 4vw, 2rem); }
+  .promo-band { padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem); }
+  .section-header { margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .section-eyebrow { letter-spacing: clamp(2px, 0.6vw, 4px); }
+  footer { padding: 3rem clamp(1rem, 4vw, 2rem) calc(2.5rem + env(safe-area-inset-bottom)); }
+
+  /* --- Menú: 3 columnas en escritorio, 2 en tablet, 1 en celular --- */
+  .menu-grid {
+    --gap: clamp(1.25rem, 2.5vw, 2rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+  .menu-line-label { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+
+  /* --- Features y testimonios --- */
+  .features-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 2rem); }
+  .testimonial-card { flex: 1 1 280px; max-width: 340px; padding: clamp(1.4rem, 3vw, 2rem); }
+
+  /* --- Botones y textos que no deben romper el ancho --- */
+  .info-card p, .cta-phones a { overflow-wrap: anywhere; }
+  .footer-logo { font-size: clamp(1.9rem, 8vw, 2.5rem); }
+  .footer-links { gap: 0.75rem 1.75rem; }
+  .footer-tagline { padding: 0 0.5rem; }
+
+  /* --- Botón hamburguesa (oculto en pantallas grandes) --- */
+  nav {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+  }
+  .nav-toggle {
+    display: none;
+    width: 46px; height: 46px;
+    flex-shrink: 0;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 5px;
+    background: rgba(217,70,239,0.14);
+    border: 1px solid rgba(217,70,239,0.5);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .nav-toggle:hover { background: rgba(217,70,239,0.28); }
+  .nav-toggle span {
+    display: block;
+    width: 22px; height: 2.5px;
+    border-radius: 2px;
+    background: #fff;
+    transition: transform 0.3s, opacity 0.2s;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+  /* ================= PANTALLAS GRANDES ================= */
+  @media (min-width: 1400px) {
+    .menu-grid, .features-grid, .info-grid, .testimonials-track { max-width: 1240px; }
+    .promo-inner { max-width: 1040px; }
+  }
+  @media (min-width: 1800px) {
+    html { font-size: 18px; }
+    .menu-grid, .features-grid, .info-grid, .testimonials-track { max-width: 1320px; }
+    .promo-inner { max-width: 1120px; }
+  }
+  @media (min-width: 2400px) {
+    html { font-size: 22px; }
+  }
+
+  /* ================= TABLET Y LAPTOP CHICA (hasta 1000px) ================= */
+  @media (max-width: 1000px) {
+    .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* la 3.ª tarjeta de cada línea queda centrada, sin quedar huérfana a la izquierda */
+    .menu-grid > .menu-card.mixto {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: calc((100% - var(--gap)) / 2);
+    }
+    .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .promo-inner { gap: 2rem; }
+  }
+
+  /* ================= MENÚ DE NAVEGACIÓN MÓVIL (hasta 900px) ================= */
+  @media (max-width: 900px) {
+    nav { padding: 0.65rem max(1.1rem, env(safe-area-inset-right)) 0.65rem max(1.1rem, env(safe-area-inset-left)); justify-content: space-between; }
+    .nav-toggle { display: inline-flex; }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      flex-direction: column;
+      gap: 0;
+      padding: 0.4rem max(1.1rem, env(safe-area-inset-right)) 1.1rem max(1.1rem, env(safe-area-inset-left));
+      background: rgba(8,6,17,0.97);
+      border-bottom: 1px solid rgba(217,70,239,0.35);
+      box-shadow: 0 22px 40px rgba(0,0,0,0.5);
+      max-height: calc(100vh - 4rem);
+      max-height: calc(100dvh - 4rem);
+      overflow-y: auto;
+    }
+    .nav-links.open { display: flex; animation: navDrop 0.25s ease; }
+    .nav-links li { width: 100%; }
+    .nav-links a { display: block; padding: 1rem 0.4rem; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .nav-links a::after { display: none; }
+    .nav-links li:last-child a { border-bottom: none; }
+    .nav-links a.nav-cta { text-align: center; margin-top: 0.8rem; padding: 0.95rem 1rem !important; }
+  }
+  @keyframes navDrop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+
+  /* ================= CELULAR (hasta 768px) ================= */
+  @media (max-width: 768px) {
+    .hero { align-items: center; }
+    .ninja-shadow { display: none; }               /* menos efectos = más fluido en celular */
+    .promo-inner { gap: 1.75rem; }
+    .promo-big-emoji { margin: 0 auto; width: min(380px, 92%); }
+    .stat-box { padding: 1rem 0.6rem; }
+    .stat-num { font-size: 2.4rem; }
+    .cta-box { border-radius: 24px; }
+    .info-card { padding: 1.25rem; }
+  }
+
+  /* Tablet vertical: el héroe se ve grande, no como en un celular */
+  @media (min-width: 600px) and (max-width: 900px) {
+    .hero-visual .hero-ninja-img { width: min(540px, 74vw); }
+    .hero h1 { font-size: clamp(3.7rem, 11vw, 5.6rem); letter-spacing: 3px; }
+    .hero-sub { font-size: 1.1rem; max-width: 520px; }
+    .hero-badge { font-size: 0.75rem; letter-spacing: 2.5px; }
+    .btn-primary, .btn-secondary { padding: 0.95rem 1.9rem; font-size: 0.95rem; }
+  }
+
+  @media (max-width: 640px) {
+    .menu-grid { grid-template-columns: minmax(0, 1fr); max-width: 440px; }
+    .menu-grid > .menu-card.mixto { grid-column: auto; justify-self: stretch; width: auto; }
+    .card-img-wrap { height: 235px; }
+    .card-ninja-img { height: 220px; }
+    .card-body { padding: 1.25rem; }
+    .card-title { font-size: 1.8rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card { padding: 1.75rem 1.25rem; }
+    .feat-emoji { font-size: 2.5rem; margin-bottom: 0.6rem; }
+    .testimonial-card { flex-basis: 100%; max-width: none; }
+    .cta-btns { flex-direction: column; align-items: stretch; }
+    .cta-btns a { justify-content: center; padding: 1rem 1.25rem; }
+    .cta-phones a { width: 100%; justify-content: center; font-size: 0.98rem; padding: 0.7rem 1rem; text-align: center; }
+    .footer-tagline { font-size: 0.75rem; letter-spacing: 1px; }
+  }
+
+  @media (max-width: 480px) {
+    .cta-box { padding: 2.5rem 1.15rem; }
+    .cta-emoji-row { font-size: 2.4rem; margin-bottom: 1rem; }
+    .section-desc { font-size: 0.98rem; }
+    .hero-btns .btn-primary, .hero-btns .btn-secondary { flex: 1 1 140px; justify-content: center; }
+  }
+
+  @media (max-width: 400px) {
+    .nav-logo { gap: 0.4rem; min-width: 0; }
+    .nav-logo span { font-size: 1.05rem; letter-spacing: 1px; }
+    .nav-logo .shuriken { font-size: 1.4rem; }
+    .card-title { font-size: 1.6rem; }
+    .menu-line-label::before, .menu-line-label::after { width: 10%; }
+    .stat-num { font-size: 2.1rem; }
+    .stat-label { font-size: 0.68rem; }
+  }
+
+  @media (max-width: 340px) {
+    .hero-btns { flex-direction: column; align-items: stretch; }
+    .hero-btns .btn-primary, .hero-btns .btn-secondary { flex: 0 0 auto; }
+    .hero-badge { font-size: 0.56rem; letter-spacing: 1px; }
+  }
+
+  /* Celular en horizontal / pantallas bajas */
+  @media (max-height: 560px) and (orientation: landscape) {
+    .hero { min-height: auto; padding-top: 5rem; padding-bottom: 3rem; align-items: flex-start; }
+    .hero-visual .hero-ninja-img { width: min(340px, 42vw); }
+    .hero-scroll { display: none; }
+    .hero-sub { margin: 0.8rem auto 1.2rem; }
+  }
+
+  /* ================= TÁCTIL: sin efectos "pegados" y botones cómodos ================= */
+  @media (hover: none) {
+    .menu-card:hover, .menu-card.premium:hover,
+    .testimonial-card:hover, .stat-box:hover, .info-card:hover { transform: none; }
+    .feature-card:hover { border-color: rgba(139,92,246,0.16); }
+    .feature-card:hover::before { transform: scaleY(0); }
+    .feature-card:hover .feat-title { color: inherit; }
+    .feature-card:hover .feat-desc { color: #888; }
+    .btn-primary:hover, .btn-secondary:hover, .btn-whatsapp:hover, .btn-white:hover, .cta-phones a:hover { transform: none; }
+    .menu-card:active { transform: scale(0.985); }
+  }
+  @media (pointer: coarse) {
+    .card-btn { min-height: 44px; padding: 0.6rem 1.5rem; font-size: 0.9rem; }
+    .footer-links a { display: inline-block; padding: 0.55rem 0.3rem; }
+    .btn-primary, .btn-secondary, .btn-whatsapp, .btn-white { min-height: 48px; }
+  }
+
+  /* ================= MENOS MOVIMIENTO (accesibilidad y batería) ================= */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+    .particles, .motion-layer, .hero-slice-show { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1546,12 +1778,15 @@
     <span class="shuriken">✦</span>
     <span>Plan Ninja Empanada</span>
   </a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#menu">Menú</a></li>
     <li><a href="#nosotros">Nosotros</a></li>
     <li><a href="#testimonios">Opiniones</a></li>
     <li><a href="#contacto" class="nav-cta">¡Pedir Ahora!</a></li>
   </ul>
+  <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-links">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -1568,7 +1803,7 @@
   <div class="hero-content">
     <div class="hero-badge">📍 Cusco, Perú · Delivery Disponible</div>
     <div class="hero-visual">
-      <img class="hero-ninja-img" src="assets/ninjas/tres-sabores-ninja.png" alt="Tres ninjas empanada Plan Ninja Empanada">
+      <img class="hero-ninja-img" fetchpriority="high" src="assets/ninjas/tres-sabores-ninja.png" alt="Tres ninjas empanada Plan Ninja Empanada">
     </div>
     <h1>Plan Ninja <span>Empanada</span></h1>
     <p class="hero-sub">Las empanadas más <strong>épicas del Cusco</strong> — rellenas, crujientes y hechas con corazón.</p>
@@ -1613,12 +1848,12 @@
     <div class="menu-card carne reveal">
       <div class="card-ribbon" style="background:#1A1A1A">🔥 Clásico</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-carne.png" alt="Ninja empanada negro para empanada de carne">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-carne.png" alt="Ninja empanada negro para empanada de carne">
       </div>
       <div class="card-body">
         <span class="card-tag">🥷 Edición Ninja</span>
         <h3 class="card-title">Empanada de Carne</h3>
-        <p class="card-desc">Carne de res bien sazonada con comino, papas nativas del Cusco, aceitunas y huevo duro. Tradición serrana con golpe ninja.</p>
+        <p class="card-desc">Una deliciosa combinación de carne molida sazonada con cebolla, ajo, comino y pimienta cubierta por la masa crujiente y dorada. Acompañamiento ideal: un toque de salsa picante o limón al gusto.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Cl&aacute;sica</span>
@@ -1632,12 +1867,12 @@
     <div class="menu-card pollo reveal" style="transition-delay:0.15s">
       <div class="card-ribbon">⭐ Favorito</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-pollo.png" alt="Ninja empanada rojo para empanada de pollo">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-pollo.png" alt="Ninja empanada rojo para empanada de pollo">
       </div>
       <div class="card-body">
         <span class="card-tag">🥷 Edición Ninja</span>
         <h3 class="card-title">Empanada de Pollo</h3>
-        <p class="card-desc">Pollo jugoso guisado con ají amarillo, cebolla y hierbas andinas. Masa crujiente al horno y sabor rápido como una katana.</p>
+        <p class="card-desc">Rellena de pollo sazonado y semi jugoso, es un bocado tradicional y reconfortante, la masa crujiente envuelve el relleno con amor y sabor, perfecta para cualquier ocasión.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Cl&aacute;sica</span>
@@ -1651,12 +1886,12 @@
     <div class="menu-card mixto reveal" style="transition-delay:0.3s">
       <div class="card-ribbon" style="background:#F39C12">⚡ Ninja Power</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-mixto.png" alt="Ninja empanada blanco para empanada mixta">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-mixto.png" alt="Ninja empanada blanco para empanada mixta">
       </div>
       <div class="card-body">
         <span class="card-tag">🥷 Edición Ninja</span>
         <h3 class="card-title">Empanada Mixta</h3>
-        <p class="card-desc">Lo mejor de los dos mundos: pollo y carne juntos con queso andino derretido. La favorita de los verdaderos ninjas del sabor.</p>
+        <p class="card-desc">Una deliciosa combinación de salchicha, queso, y un toque de orégano, la masa crujiente envuelve este trío de sabores, creando una empanada que te hará sonreír con cada bocado.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Cl&aacute;sica</span>
@@ -1672,12 +1907,12 @@
     <div class="menu-card carne premium reveal">
       <div class="card-ribbon" style="background:#F39C12">&#x1F451; Premium</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-carne.png" alt="Ninja empanada negro para empanada de carne premium">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-carne.png" alt="Ninja empanada negro para empanada de carne premium">
       </div>
       <div class="card-body">
         <span class="card-tag">&#x1F451; Edici&oacute;n Dorada</span>
         <h3 class="card-title">Empanada de Carne Premium</h3>
-        <p class="card-desc">La misma carne de res bien sazonada, en versi&oacute;n premium: masa m&aacute;s grande, extra de relleno y un acabado dorado del horno. Tradici&oacute;n serrana en su m&aacute;xima expresi&oacute;n.</p>
+        <p class="card-desc">Una deliciosa combinación de carne molida sazonada con cebolla, ajo, comino y pimienta cubierta por la masa crujiente y dorada. Acompañamiento ideal: un toque de salsa picante o limón al gusto.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Premium</span>
@@ -1691,12 +1926,12 @@
     <div class="menu-card pollo premium reveal">
       <div class="card-ribbon" style="background:#F39C12">&#x1F451; Premium</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-pollo.png" alt="Ninja empanada rojo para empanada de pollo premium">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-pollo.png" alt="Ninja empanada rojo para empanada de pollo premium">
       </div>
       <div class="card-body">
         <span class="card-tag">&#x1F451; Edici&oacute;n Dorada</span>
         <h3 class="card-title">Empanada de Pollo Premium</h3>
-        <p class="card-desc">Pollo jugoso guisado con aj&iacute; amarillo en versi&oacute;n premium: mayor tama&ntilde;o, m&aacute;s relleno y esa masa dorada que golpea como katana a la primera.</p>
+        <p class="card-desc">Rellena de pollo sazonado y semi jugoso, es un bocado tradicional y reconfortante, la masa crujiente envuelve el relleno con amor y sabor, perfecta para cualquier ocasión.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Premium</span>
@@ -1710,12 +1945,12 @@
     <div class="menu-card mixto premium reveal">
       <div class="card-ribbon" style="background:#F39C12">&#x1F451; Premium</div>
       <div class="card-img-wrap">
-        <img class="card-ninja-img" src="assets/ninjas/ninja-mixto.png" alt="Ninja empanada blanco para empanada mixta premium">
+        <img class="card-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/ninja-mixto.png" alt="Ninja empanada blanco para empanada mixta premium">
       </div>
       <div class="card-body">
         <span class="card-tag">&#x1F451; Edici&oacute;n Dorada</span>
         <h3 class="card-title">Empanada Mixta Premium</h3>
-        <p class="card-desc">Pollo y carne con queso andino derretido en versi&oacute;n premium: m&aacute;s tama&ntilde;o, m&aacute;s queso, m&aacute;s sabor. La joya dorada del clan ninja.</p>
+        <p class="card-desc">Una deliciosa combinación de salchicha, queso, y un toque de orégano, la masa crujiente envuelve este trío de sabores, creando una empanada que te hará sonreír con cada bocado.</p>
         <div class="card-footer">
           <div class="card-price">
             <span>Premium</span>
@@ -1755,7 +1990,7 @@
     </div>
     <div class="promo-visual">
       <div class="orbit-ring"><span class="orbit-dot">🥟</span></div>
-      <img class="promo-big-emoji hero-ninja-img" src="assets/ninjas/tres-sabores-ninja.png" alt="Clan ninja empanada">
+      <img class="promo-big-emoji hero-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/tres-sabores-ninja.png" alt="Clan ninja empanada">
     </div>
   </div>
 </div>
@@ -1915,7 +2150,8 @@
   // PARTICLES
   const symbols = ['🥟','🌶️','🧅','🧄','✦','◆','🔥','⭐','⚔️','💜'];
   const container = document.getElementById('particles');
-  for (let i = 0; i < 30; i++) {
+  const PARTICLE_COUNT = window.innerWidth < 768 ? 12 : 30;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
@@ -1960,6 +2196,21 @@
     glow.style.marginLeft = x + 'px';
     glow.style.marginTop = y + 'px';
   });
+
+  // MENÚ MÓVIL (hamburguesa)
+  const navToggle = document.getElementById('nav-toggle');
+  const navLinks = document.getElementById('nav-links');
+  function setNav(open) {
+    navLinks.classList.toggle('open', open);
+    navToggle.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  }
+  navToggle.addEventListener('click', () => setNav(!navLinks.classList.contains('open')));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setNav(false)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setNav(false); });
+  document.addEventListener('click', e => { if (!nav.contains(e.target)) setNav(false); });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) setNav(false); });
 </script>
 
 </body>
