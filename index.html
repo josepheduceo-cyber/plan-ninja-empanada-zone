@@ -277,6 +277,23 @@
     filter: drop-shadow(0 0 24px rgba(217,70,239,0.55)) drop-shadow(0 22px 28px rgba(0,0,0,0.46));
   }
 
+
+  /* ================= ULTRA KEY: video corto ninja con fondo verde removido ================= */
+  .ninja-key { position: relative; display: block; max-height: none; }
+  .ninja-key .nk-poster { display: block; width: 100%; height: auto; }
+  .ninja-key .nk-video { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+  .ninja-key .nk-canvas { display: none; }
+  .ninja-key.is-live .nk-poster { display: none; }
+  .ninja-key.is-live .nk-canvas { display: block; width: 100%; height: auto; }
+  .ninja-key.is-live.nk-svg .nk-canvas,
+  .ninja-key.is-live.nk-native .nk-canvas { display: none; }
+  .ninja-key.is-live.nk-native .nk-video { position: static; opacity: 1; display: block; width: 100%; height: auto; }
+  .ninja-key.is-live.nk-svg .nk-video { position: static; opacity: 1; display: block; width: 100%; height: auto; filter: url(#ninja-key-filter); }
+  .promo-big-emoji.ninja-key .nk-poster,
+  .promo-big-emoji.ninja-key .nk-canvas,
+  .promo-big-emoji.ninja-key.is-live.nk-svg .nk-video,
+  .promo-big-emoji.ninja-key.is-live.nk-native .nk-video { max-height: 320px; width: auto; max-width: 100%; margin: 0 auto; }
+
   @keyframes ninjaHeroFloat {
     0%, 100% { transform: translateY(0) rotate(-1deg); }
     50% { transform: translateY(-14px) rotate(1deg); }
@@ -1803,7 +1820,14 @@
   <div class="hero-content">
     <div class="hero-badge">📍 Cusco, Perú · Delivery Disponible</div>
     <div class="hero-visual">
-      <img class="hero-ninja-img" fetchpriority="high" src="assets/ninjas/tres-sabores-ninja.png" alt="Tres ninjas empanada Plan Ninja Empanada">
+      <div class="hero-ninja-img ninja-key" data-ninja-key>
+      <img class="nk-poster" fetchpriority="high" src="assets/ninjas/tres-sabores-ninja.png" alt="Tres ninjas empanada Plan Ninja Empanada">
+      <video class="nk-video" muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1">
+        <source src="assets/video.corto/video.corto.plan.ninja.webm" type="video/webm; codecs=vp9">
+        <source src="assets/video.corto/video.corto.plan.ninja.mp4" type="video/mp4">
+      </video>
+      <canvas class="nk-canvas" aria-hidden="true"></canvas>
+    </div>
     </div>
     <h1>Plan Ninja <span>Empanada</span></h1>
     <p class="hero-sub">Las empanadas más <strong>épicas del Cusco</strong> — rellenas, crujientes y hechas con corazón.</p>
@@ -1990,7 +2014,14 @@
     </div>
     <div class="promo-visual">
       <div class="orbit-ring"><span class="orbit-dot">🥟</span></div>
-      <img class="promo-big-emoji hero-ninja-img" loading="lazy" decoding="async" src="assets/ninjas/tres-sabores-ninja.png" alt="Clan ninja empanada">
+      <div class="promo-big-emoji hero-ninja-img ninja-key" data-ninja-key>
+        <img class="nk-poster" loading="lazy" decoding="async" src="assets/ninjas/tres-sabores-ninja.png" alt="Clan ninja empanada">
+        <video class="nk-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">
+        <source src="assets/video.corto/video.corto.plan.ninja.webm" type="video/webm; codecs=vp9">
+        <source src="assets/video.corto/video.corto.plan.ninja.mp4" type="video/mp4">
+      </video>
+        <canvas class="nk-canvas" aria-hidden="true"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -2752,5 +2783,88 @@
 </script>
 <!-- ═══════════════ FIN CHATBOT SENSEI NINJA ═══════════════ -->
 
+<!-- ULTRA KEY: filtro de respaldo (se usa si el navegador bloquea leer píxeles, p. ej. al abrir el archivo con file://) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="ninja-key-filter" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="1 0 0 0 0  0.1 0.8 0.1 0 0  0 0 1 0 0  4 -4 4 0 1"/>
+  </filter>
+</svg>
+<script>
+/* ULTRA KEY · quita el fondo verde del video corto en tiempo real y lo muestra como los ninjas flotantes */
+(function () {
+  var wraps = document.querySelectorAll('[data-ninja-key]');
+  if (!wraps.length) return;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MAXW = 720, T1 = 28, T2 = 95; /* T1/T2: sensibilidad del verde (más bajo = quita más) */
+
+  function init(w) {
+    var v = w.querySelector('.nk-video'), c = w.querySelector('.nk-canvas');
+    var ctx = c.getContext('2d', { willReadFrequently: true });
+    var mode = 'canvas', pending = false, live = false, inView = false;
+    var safari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+    if (safari) { var ws = v.querySelector('source[type^="video/webm"]'); if (ws) { v.removeChild(ws); v.load(); } }
+    function isAlphaWebm() { return /\.webm(\?|#|$)/i.test(v.currentSrc || ''); }
+    function native() { mode = 'native'; w.classList.add('nk-native'); goLive(); }
+
+    function goLive() { if (!live) { live = true; w.classList.add('is-live'); } }
+    function useSvg() { mode = 'svg'; w.classList.add('nk-svg'); goLive(); }
+
+    function frame() {
+      var vw = v.videoWidth, vh = v.videoHeight;
+      if (!vw || v.readyState < 2) return;
+      var s = Math.min(1, MAXW / vw), W = Math.round(vw * s), H = Math.round(vh * s);
+      if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+      ctx.drawImage(v, 0, 0, W, H);
+      var img;
+      try { img = ctx.getImageData(0, 0, W, H); } catch (e) { return useSvg(); }
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) {
+        var r = d[i], g = d[i + 1], b = d[i + 2], m = r > b ? r : b, diff = g - m;
+        if (diff > T1) {
+          d[i + 3] = diff >= T2 ? 0 : 255 * (1 - (diff - T1) / (T2 - T1));
+          d[i + 1] = m + diff * 0.2;               /* quita el reflejo verde en los bordes */
+        } else if (diff > 0) {
+          d[i + 1] = m + diff * 0.5;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      goLive();
+    }
+
+    function schedule() {
+      if (pending || mode !== 'canvas') return;
+      pending = true;
+      var cb = function () {
+        pending = false;
+        if (mode !== 'canvas') return;
+        frame();
+        if (!v.paused) schedule();
+      };
+      if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(cb); else requestAnimationFrame(cb);
+    }
+
+    v.addEventListener('loadeddata', function () {
+      if (isAlphaWebm()) { native(); return; }          /* webm con transparencia: se muestra tal cual */
+      if (reduce || v.paused) { frame(); } else { schedule(); }
+    });
+    v.addEventListener('playing', function () {
+      if (mode === 'native') return;
+      if (isAlphaWebm()) { native(); return; }
+      schedule();
+      if (mode === 'canvas' && !live) frame(); else if (mode === 'svg') goLive();
+    });
+
+    function play() { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        inView = es[0].isIntersecting;
+        if (inView && !reduce) play(); else v.pause();
+        if (inView && reduce && v.preload === 'none') v.load();
+      }, { threshold: 0.05 }).observe(w);
+    } else if (!reduce) { play(); }
+  }
+  Array.prototype.forEach.call(wraps, init);
+})();
+</script>
 </body>
 </html>
