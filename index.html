@@ -2173,6 +2173,7 @@
     <li><a href="#menu">Menú</a></li>
     <li><a href="#nosotros">Nosotros</a></li>
     <li><a href="#contacto">Contacto</a></li>
+    <li><a href="#crm">🔐 Panel CRM</a></li>
   </ul>
   <p class="footer-copy">© 2026 Plan Ninja Empanada · Hecho con ❤️ en el Cusco</p>
 </footer>
@@ -2866,5 +2867,300 @@
   Array.prototype.forEach.call(wraps, init);
 })();
 </script>
+
+<!-- ═══ CRM NINJA · Google Sheets ═══ -->
+<script>window.PNE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwv-aKEGUDWvcaEvI6EINd_aLKk3QxxRkZJ5aXuOuj0yc7baLRnWsBwKqIQsfjk-t_k/exec'; /* ← pega aquí la URL de tu Apps Script (termina en /exec) */</script>
+<style>
+#pne-o{background:#120d24;color:#fff;border:1px solid #D946EF;border-radius:16px;padding:1.2rem;width:min(94vw,460px);max-height:92vh;overflow:auto;font-family:'Nunito',system-ui,sans-serif}
+#pne-o::backdrop{background:rgba(0,0,0,.72)}#pne-o h3{font-family:'Bangers',cursive;font-weight:400;letter-spacing:2px;color:#F8C471;font-size:1.5rem;margin-bottom:.4rem}
+#pne-o label{display:block;font-size:.8rem;color:#bfb0ee;margin:.55rem 0 .2rem}#pne-o input{width:100%;background:#0b0816;border:1px solid rgba(217,70,239,.35);color:#fff;border-radius:10px;padding:.6rem .8rem;font:600 .95rem Nunito,sans-serif}
+.pne-g{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}.pne-g label{margin:0 0 .2rem}
+#pne-tot{margin:.8rem 0;font-weight:800;color:#F8C471}.pne-b{display:flex;gap:.5rem;flex-wrap:wrap}
+.pne-b button{border:0;border-radius:50px;padding:.7rem 1.1rem;font:800 .95rem Nunito,sans-serif;cursor:pointer;color:#fff;background:#2a1f4d}.pne-b .pne-go{background:#25D366;flex:1}
+</style>
+<script>
+(() => {
+  const U = window.PNE_SHEETS_URL, SAB = ['Carne', 'Pollo', 'Mixta'];
+  const g = o => SAB.map((s, i) => `<div><label>${s}</label><input type="number" min="0" max="99" value="0" name="q${i + o}"></div>`).join('');
+  const d = document.createElement('dialog'); d.id = 'pne-o';
+  d.innerHTML = `<form method="dialog" id="pne-of"><h3>🥟 Tu pedido Ninja</h3>
+    <label>Nombre *</label><input name="nombre" required maxlength="60">
+    <label>WhatsApp *</label><input name="tel" required inputmode="tel" maxlength="20">
+    <label>Dirección / zona de entrega</label><input name="zona" maxlength="80">
+    <label>Línea clásica · S/ 3.00 c/u</label><div class="pne-g">${g(0)}</div>
+    <label>Línea premium · S/ 5.00 c/u</label><div class="pne-g">${g(3)}</div>
+    <label>Fecha deseada (pedidos con 3 a 4 días de anticipación)</label><input type="date" name="fecha">
+    <label>Nota</label><input name="nota" maxlength="120">
+    <input name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px">
+    <p id="pne-tot">Total: S/ 0.00</p>
+    <div class="pne-b"><button class="pne-go">📲 Enviar pedido por WhatsApp</button><button type="button" id="pne-x">Cancelar</button></div></form>`;
+  document.body.appendChild(d);
+  const f = d.querySelector('form'), E = f.elements;
+  const qs = () => [0, 1, 2, 3, 4, 5].map(i => Math.max(0, parseInt(E['q' + i].value) || 0));
+  const tot = q => (q[0] + q[1] + q[2]) * 3 + (q[3] + q[4] + q[5]) * 5;
+  f.addEventListener('input', () => { d.querySelector('#pne-tot').textContent = 'Total: S/ ' + tot(qs()).toFixed(2); });
+  d.querySelector('#pne-x').onclick = () => d.close();
+  window.pedirEmpanada = (tipo, precio) => {
+    f.reset(); const i = SAB.findIndex(x => String(tipo).startsWith(x));
+    if (i >= 0) E['q' + (i + (/premium/i.test(tipo) || precio >= 5 ? 3 : 0))].value = 1;
+    f.dispatchEvent(new Event('input')); d.showModal();
+  };
+  const cta = document.querySelector('.btn-whatsapp');
+  if (cta) cta.addEventListener('click', e => { e.preventDefault(); window.pedirEmpanada('', 3); });
+  f.onsubmit = e => {
+    const q = qs(), t = tot(q);
+    if (!t) { e.preventDefault(); alert('Agrega al menos una empanada 🥟'); return; }
+    const x = { nombre: E.nombre.value.trim(), tel: E.tel.value.trim(), zona: E.zona.value.trim(), fecha: E.fecha.value, nota: E.nota.value.trim(), q, web: E.web.value };
+    const l = SAB.map((s, i) => (q[i] ? '• ' + q[i] + ' ' + s + ' (S/ 3.00)\n' : '') + (q[i + 3] ? '• ' + q[i + 3] + ' ' + s + ' Premium (S/ 5.00)\n' : '')).join('');
+    const m = '¡Hola! Soy ' + x.nombre + ' 🥷\nQuiero hacer este pedido:\n' + l + 'Total: S/ ' + t.toFixed(2) + '\n' + (x.zona ? 'Entrega: ' + x.zona + '\n' : '') + (x.fecha ? 'Fecha: ' + x.fecha + '\n' : '') + (x.nota ? 'Nota: ' + x.nota : '');
+    window.open('https://wa.me/51996989580?text=' + encodeURIComponent(m), '_blank');
+    if (U) fetch(U, { method: 'POST', body: JSON.stringify({ action: 'lead', data: x }), keepalive: true }).catch(() => {});
+  };
+})();
+</script>
+
+<style>
+#crm{position:fixed;inset:0;z-index:2000000;background:#0b0816;color:#f3eeff;font-family:'Nunito',system-ui,sans-serif;display:flex;flex-direction:column;--p:#8B5CF6;--n:#D946EF;--g:#F8C471;--l:rgba(217,70,239,.28)}
+#crm[hidden]{display:none}body.crm-open{overflow:hidden}body.crm-open .pnb{display:none}
+#crm *{box-sizing:border-box}
+.crm-h{display:flex;align-items:center;gap:.8rem;padding:.8rem 1.2rem;border-bottom:1px solid var(--l);background:#120d24;padding-top:calc(.8rem + env(safe-area-inset-top,0px))}
+.crm-h h2{font-family:'Bangers',cursive;color:var(--g);letter-spacing:2px;font-size:1.5rem;flex:1;font-weight:400}
+.crm-x{background:none;border:1px solid var(--l);color:#fff;border-radius:10px;padding:.4rem .8rem;cursor:pointer;font-size:1rem}
+.crm-t{display:flex;gap:.4rem;padding:.6rem 1rem;overflow-x:auto;background:#0f0a1e;border-bottom:1px solid var(--l)}
+.crm-t button{white-space:nowrap;background:transparent;border:1px solid var(--l);color:#d8ccff;padding:.5rem 1rem;border-radius:50px;font:700 .9rem Nunito,sans-serif;cursor:pointer}
+.crm-t button.on{background:linear-gradient(135deg,#5B21B6,var(--n));color:#fff;border-color:transparent}
+#crm-b{flex:1;overflow:auto;padding:1rem;max-width:980px;width:100%;margin:0 auto;padding-bottom:calc(2rem + env(safe-area-inset-bottom,0px))}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-bottom:1rem}
+.k{background:#171032;border:1px solid var(--l);border-radius:14px;padding:.9rem}.k b{display:block;font-size:1.6rem;color:var(--g)}.k span{font-size:.8rem;color:#bfb0ee}
+.cd{background:#171032;border:1px solid var(--l);border-radius:14px;padding:1rem;margin-bottom:1rem}.cd h3{font-size:1rem;color:var(--g);margin-bottom:.6rem}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem}
+#crm input,#crm select,#crm textarea,#crm-d input,#crm-d select,#crm-d textarea{background:#0b0816;border:1px solid var(--l);color:#fff;border-radius:10px;padding:.6rem .8rem;font:600 .95rem Nunito,sans-serif;min-width:0}
+.bar input{flex:1;min-width:140px}
+.b{background:linear-gradient(135deg,#5B21B6,var(--n));border:0;color:#fff;border-radius:10px;padding:.6rem 1rem;font:800 .9rem Nunito,sans-serif;cursor:pointer}
+.b.s{background:#2a1f4d}.b.r{background:#7f1d1d}
+.row{display:flex;gap:.6rem;align-items:center;justify-content:space-between;background:#171032;border:1px solid var(--l);border-radius:14px;padding:.8rem 1rem;margin-bottom:.6rem;flex-wrap:wrap}
+.rm{flex:1;min-width:200px}.rm small{display:block;color:#bfb0ee;margin-top:.15rem}
+.ac{display:flex;gap:.3rem;align-items:center}.ac button{background:#2a1f4d;border:1px solid var(--l);border-radius:9px;padding:.45rem .6rem;cursor:pointer;font-size:1rem;color:#fff}
+.tg{font-size:.72rem;font-weight:800;padding:.15rem .6rem;border-radius:50px;background:#2a1f4d;margin-left:.3rem}
+.e-Nuevo{background:#1e3a8a}.e-Contactado{background:#854d0e}.e-Cliente{background:#166534}.e-Recurrente{background:#86198f}.e-Inactivo{background:#52525b}
+.fb{display:flex;align-items:center;gap:.6rem;margin:.35rem 0;font-size:.85rem}.fb i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--p),var(--n));min-width:4px}.fb span:first-child{width:90px}
+.em{color:#bfb0ee;text-align:center;padding:1.5rem}
+#crm-d{background:#120d24;color:#fff;border:1px solid var(--n);border-radius:16px;padding:1.2rem;width:min(94vw,480px);max-height:92vh;overflow:auto}
+#crm-d::backdrop{background:rgba(0,0,0,.7)}#crm-d h3{color:var(--g);margin-bottom:.8rem}
+#crm-d label{display:block;font-size:.8rem;color:#bfb0ee;margin:.5rem 0 .2rem}#crm-d input,#crm-d select,#crm-d textarea{width:100%}
+.g6{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}.g6 label{margin:0}
+.gate{margin:auto;text-align:center;padding:2rem}.gate input{text-align:center;font-size:1.3rem;margin:1rem 0;width:200px}
+</style>
+
+<div id="crm" hidden role="dialog" aria-label="CRM Plan Ninja Empanada">
+  <div class="crm-h"><h2>🥷 CRM Ninja</h2><small id="crm-st" style="color:#bfb0ee"></small><button class="crm-x" id="crm-ref" type="button" title="Sincronizar">↻</button><button class="crm-x" id="crm-close" type="button">✕ Cerrar</button></div>
+  <div id="crm-gate" class="gate" hidden></div>
+  <div id="crm-app" hidden style="display:none;flex-direction:column;flex:1;min-height:0">
+    <div class="crm-t" id="crm-tabs"></div>
+    <div id="crm-b"></div>
+  </div>
+</div>
+<dialog id="crm-d"></dialog>
+
+<script>
+(() => {
+  const KEY = 'pne_crm_v1', PRECIO = [3, 5], SAB = ['Carne', 'Pollo', 'Mixta'];
+  const ETAPAS = ['Nuevo', 'Contactado', 'Cliente', 'Recurrente', 'Inactivo'];
+  const ORIGEN = ['WhatsApp', 'Facebook', 'Instagram', 'App', 'Referido', 'Otro'];
+  const ESTADOS = ['Pendiente', 'Entregado', 'Cancelado'];
+  const DIAS_RECONTACTO = 14;
+  let db = { clientes: [], pedidos: [] }, PIN = '';
+  const S = { tab: 'resumen', q: '', fe: '' };
+  const $ = s => document.querySelector(s);
+  const el = { root: $('#crm'), gate: $('#crm-gate'), app: $('#crm-app'), b: $('#crm-b'), tabs: $('#crm-tabs'), d: $('#crm-d') };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const hoy = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+  const dias = d => Math.floor((Date.now() - new Date(d + 'T12:00')) / 864e5);
+  const money = n => 'S/ ' + n.toFixed(2);
+  const URL_ = window.PNE_SHEETS_URL;
+  const estado = (m, c) => { const e = $('#crm-st'); if (e) { e.textContent = m; e.style.color = c || '#bfb0ee'; } };
+  async function api(action, data) {
+    if (!URL_) throw new Error('Falta pegar la URL de Apps Script en PNE_SHEETS_URL');
+    const r = await fetch(URL_, { method: 'POST', body: JSON.stringify({ action, pin: PIN, data: data || {} }) });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error || 'Error'); return j;
+  }
+  async function cargar() {
+    estado('Sincronizando…');
+    try { const j = await api('all'); db.clientes = j.clientes; db.pedidos = j.pedidos; estado('✓ ' + new Date().toTimeString().slice(0, 5), '#86efac'); render(); }
+    catch (e) { estado('⚠ ' + e.message, '#f87171'); throw e; }
+  }
+  const push = (a, d) => api(a, d).then(() => estado('✓ Guardado', '#86efac')).catch(e => { estado('⚠ ' + e.message, '#f87171'); alert('No se pudo guardar: ' + e.message + '\nPulsa ↻ para recargar.'); });
+  const cli = id => db.clientes.find(c => c.id === id);
+  const calc = q => (q[0] + q[1] + q[2]) * PRECIO[0] + (q[3] + q[4] + q[5]) * PRECIO[1];
+  const unidades = p => p.q.reduce((a, b) => a + b, 0);
+  const wa = (tel, msg) => { let t = String(tel).replace(/\D/g, ''); if (t.length === 9) t = '51' + t; window.open('https://wa.me/' + t + '?text=' + encodeURIComponent(msg), '_blank'); };
+
+  function stats(c) {
+    const ps = db.pedidos.filter(p => p.cid === c.id && p.estado !== 'Cancelado');
+    const ent = ps.filter(p => p.estado === 'Entregado');
+    return { n: ps.length, ent: ent.length, total: ent.reduce((s, p) => s + p.total, 0), last: ps.map(p => p.fecha).sort().pop() || c.creado };
+  }
+  function sync(cid) {
+    const c = cli(cid); if (!c) return;
+    const n = db.pedidos.filter(p => p.cid === cid && p.estado === 'Entregado').length;
+    if (n >= 3) c.etapa = 'Recurrente';
+    else if (n >= 1 && (c.etapa === 'Nuevo' || c.etapa === 'Contactado')) c.etapa = 'Cliente';
+  }
+  const recontactar = () => db.clientes.filter(c => c.etapa !== 'Inactivo' && dias(stats(c).last) >= DIAS_RECONTACTO)
+    .sort((a, b) => stats(a).last.localeCompare(stats(b).last));
+
+  /* ── Vistas ── */
+  const TABS = [['resumen', '📊 Resumen'], ['clientes', '👥 Clientes'], ['pedidos', '🥟 Pedidos'], ['seguimiento', '🔔 Seguimiento'], ['datos', '💾 Datos']];
+  function render() {
+    el.tabs.innerHTML = TABS.map(([k, t]) => `<button class="${S.tab === k ? 'on' : ''}" data-tab="${k}">${t}</button>`).join('');
+    el.b.innerHTML = { resumen: vResumen, clientes: vClientes, pedidos: vPedidos, seguimiento: vSeguimiento, datos: vDatos }[S.tab]();
+  }
+  function vResumen() {
+    const ent = db.pedidos.filter(p => p.estado === 'Entregado'), pen = db.pedidos.filter(p => p.estado === 'Pendiente');
+    const ventas = ent.reduce((s, p) => s + p.total, 0);
+    const emb = ETAPAS.map(e => [e, db.clientes.filter(c => c.etapa === e).length]), mx = Math.max(1, ...emb.map(x => x[1]));
+    const top = db.clientes.map(c => [c, stats(c)]).filter(x => x[1].total > 0).sort((a, b) => b[1].total - a[1].total).slice(0, 5);
+    return `<div class="kp">
+      <div class="k"><b>${db.clientes.length}</b><span>Clientes</span></div>
+      <div class="k"><b>${pen.length}</b><span>Pedidos pendientes</span></div>
+      <div class="k"><b>${money(ventas)}</b><span>Ventas entregadas</span></div>
+      <div class="k"><b>${ent.length ? money(ventas / ent.length) : '—'}</b><span>Ticket promedio</span></div>
+      <div class="k"><b>${ent.reduce((s, p) => s + unidades(p), 0)}</b><span>Empanadas entregadas</span></div>
+      <div class="k"><b>${recontactar().length}</b><span>Por recontactar</span></div></div>
+    <div class="cd"><h3>Embudo de clientes</h3>${emb.map(([e, n]) => `<div class="fb"><span>${e}</span><i style="width:${n / mx * 60}%"></i><span>${n}</span></div>`).join('')}</div>
+    <div class="cd"><h3>Mejores clientes</h3>${top.length ? top.map(([c, s], i) => `<div class="fb"><span>${i + 1}. ${esc(c.nombre)}</span><span style="margin-left:auto">${money(s.total)} · ${s.ent} pedidos</span></div>`).join('') : '<p class="em">Aún no hay pedidos entregados.</p>'}</div>`;
+  }
+  function listaClientes() {
+    const q = S.q.toLowerCase();
+    const l = db.clientes.filter(c => (!S.fe || c.etapa === S.fe) && (c.nombre + c.tel + c.zona).toLowerCase().includes(q));
+    return l.length ? l.map(c => { const s = stats(c); return `<div class="row"><div class="rm"><b>${esc(c.nombre)}</b><span class="tg e-${c.etapa}">${c.etapa}</span>
+      <small>📱 ${esc(c.tel)} · 📍 ${esc(c.zona || '—')} · ${esc(c.origen)}</small><small>${s.n} pedidos · ${money(s.total)} entregados</small>${c.notas ? `<small>📝 ${esc(c.notas)}</small>` : ''}</div>
+      <div class="ac"><button title="WhatsApp" data-a="wa" data-id="${c.id}">📲</button><button title="Nuevo pedido" data-a="newp" data-id="${c.id}">🥟</button><button title="Editar" data-a="editc" data-id="${c.id}">✏️</button><button title="Eliminar" data-a="delc" data-id="${c.id}">🗑</button></div></div>`; }).join('') : '<p class="em">Sin clientes para mostrar.</p>';
+  }
+  function vClientes() {
+    return `<div class="bar"><input id="crm-q" placeholder="Buscar nombre, teléfono o zona…" value="${esc(S.q)}">
+      <select id="crm-fe"><option value="">Todas las etapas</option>${ETAPAS.map(e => `<option ${S.fe === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
+      <button class="b" data-a="newc">＋ Cliente</button></div><div id="crm-list">${listaClientes()}</div>`;
+  }
+  function vPedidos() {
+    const l = [...db.pedidos].sort((a, b) => b.fecha.localeCompare(a.fecha));
+    return `<div class="bar"><button class="b" data-a="newp">＋ Nuevo pedido</button></div>` + (l.length ? l.map(p => { const c = cli(p.cid);
+      const det = SAB.map((s, i) => (p.q[i] ? p.q[i] + '× ' + s + ' S/3 ' : '') + (p.q[i + 3] ? p.q[i + 3] + '× ' + s + ' S/5 ' : '')).join('');
+      return `<div class="row"><div class="rm"><b>${esc(c ? c.nombre : 'Cliente eliminado')}</b> · ${p.fecha}<small>${esc(det)}</small><small><b>${money(p.total)}</b>${p.nota ? ' · 📝 ' + esc(p.nota) : ''}</small></div>
+      <div class="ac"><select data-est="${p.id}">${ESTADOS.map(e => `<option ${p.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select><button data-a="delp" data-id="${p.id}">🗑</button></div></div>`; }).join('') : '<p class="em">Aún no hay pedidos.</p>');
+  }
+  function vSeguimiento() {
+    const l = recontactar();
+    return `<p class="em" style="text-align:left;padding-top:0">Clientes sin pedidos ni contacto hace ${DIAS_RECONTACTO} días o más. Pulsa 📲 para escribirles por WhatsApp.</p>` + (l.length ? l.map(c => `<div class="row"><div class="rm"><b>${esc(c.nombre)}</b><span class="tg e-${c.etapa}">${c.etapa}</span><small>Última actividad hace ${dias(stats(c).last)} días</small></div>
+      <div class="ac"><button data-a="wa" data-id="${c.id}">📲</button><button data-a="newp" data-id="${c.id}">🥟</button><button data-a="inact" data-id="${c.id}" title="Marcar inactivo">💤</button></div></div>`).join('') : '<p class="em">✅ Todo al día, ninja.</p>');
+  }
+  function vDatos() {
+    return `<div class="cd"><h3>Exportar</h3><div class="bar"><button class="b s" data-a="csvc">Clientes (CSV)</button><button class="b s" data-a="csvp">Pedidos (CSV)</button><button class="b s" data-a="json">Copia de seguridad (JSON)</button></div></div>
+    <div class="cd"><h3>Importar copia de seguridad</h3><input type="file" id="crm-imp" accept=".json"></div>
+    <div class="cd"><h3>Seguridad</h3><div class="bar"><button class="b r" data-a="wipe">Borrar todos los datos</button></div>
+    <small style="color:#bfb0ee">Los datos viven en tu Google Sheet. El PIN se cambia en la constante PIN del Apps Script.</small></div>`;
+  }
+
+  /* ── Formularios ── */
+  const opts = (arr, sel) => arr.map(x => `<option ${x === sel ? 'selected' : ''}>${x}</option>`).join('');
+  function formC(id) {
+    const c = id ? cli(id) : { nombre: '', tel: '', zona: '', origen: 'WhatsApp', etapa: 'Nuevo', notas: '' };
+    el.d.innerHTML = `<form method="dialog" id="crm-fc"><h3>${id ? 'Editar' : 'Nuevo'} cliente</h3>
+      <label>Nombre *</label><input name="nombre" required value="${esc(c.nombre)}">
+      <label>Teléfono / WhatsApp *</label><input name="tel" required inputmode="tel" value="${esc(c.tel)}">
+      <label>Zona / dirección</label><input name="zona" value="${esc(c.zona)}">
+      <label>Origen</label><select name="origen">${opts(ORIGEN, c.origen)}</select>
+      <label>Etapa</label><select name="etapa">${opts(ETAPAS, c.etapa)}</select>
+      <label>Notas</label><textarea name="notas" rows="2">${esc(c.notas)}</textarea>
+      <div class="bar" style="margin-top:1rem"><button class="b">Guardar</button><button class="b s" type="button" data-a="cd">Cancelar</button></div></form>`;
+    el.d.showModal();
+    $('#crm-fc').onsubmit = e => { const f = Object.fromEntries(new FormData(e.target));
+      let r; if (id) r = Object.assign(cli(id), f); else { r = { id: uid(), creado: hoy(), ...f }; db.clientes.push(r); }
+      push('upsertC', r); render(); };
+  }
+  function formP(cid) {
+    if (!db.clientes.length) { alert('Primero registra un cliente.'); return; }
+    el.d.innerHTML = `<form method="dialog" id="crm-fp"><h3>Nuevo pedido</h3>
+      <label>Cliente</label><select name="cid">${db.clientes.map(c => `<option value="${c.id}" ${c.id === cid ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('')}</select>
+      <label>Fecha de entrega</label><input type="date" name="fecha" value="${hoy()}">
+      <label>Línea clásica S/ 3.00</label><div class="g6">${SAB.map((s, i) => `<div><label>${s}</label><input type="number" min="0" value="0" name="q${i}"></div>`).join('')}</div>
+      <label>Línea premium S/ 5.00</label><div class="g6">${SAB.map((s, i) => `<div><label>${s}</label><input type="number" min="0" value="0" name="q${i + 3}"></div>`).join('')}</div>
+      <label>Estado</label><select name="estado">${opts(ESTADOS, 'Pendiente')}</select>
+      <label>Nota</label><input name="nota" maxlength="120">
+      <p style="margin:.8rem 0;font-weight:800;color:var(--g)" id="crm-tot">Total: S/ 0.00</p>
+      <div class="bar"><button class="b">Guardar pedido</button><button class="b s" type="button" data-a="cd">Cancelar</button></div></form>`;
+    el.d.showModal();
+    const f = $('#crm-fp'), qs = () => [0, 1, 2, 3, 4, 5].map(i => Math.max(0, parseInt(f.elements['q' + i].value) || 0));
+    f.addEventListener('input', () => { $('#crm-tot').textContent = 'Total: ' + money(calc(qs())); });
+    f.onsubmit = e => { const q = qs(); if (!calc(q)) { e.preventDefault(); alert('Agrega al menos una empanada.'); return; }
+      const ped = { id: uid(), cid: f.elements.cid.value, fecha: f.elements.fecha.value, estado: f.elements.estado.value, nota: f.elements.nota.value, q, total: calc(q), creado: hoy() };
+      db.pedidos.push(ped); sync(ped.cid); push('upsertP', { pedido: ped, cliente: cli(ped.cid) }); render(); };
+  }
+
+  /* ── Utilidades de datos ── */
+  function descargar(nombre, texto, tipo) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + texto], { type: tipo }));
+    a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  const csv = rows => rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+
+  /* ── Eventos ── */
+  el.root.addEventListener('click', e => {
+    const t = e.target.closest('[data-tab],[data-a]'); if (!t) return;
+    if (t.dataset.tab) { S.tab = t.dataset.tab; render(); return; }
+    const a = t.dataset.a, id = t.dataset.id, c = id && cli(id);
+    if (a === 'newc') formC();
+    else if (a === 'editc') formC(id);
+    else if (a === 'newp') formP(id);
+    else if (a === 'wa' && c) wa(c.tel, `¡Hola ${c.nombre.split(' ')[0]}! 🥷 Te saluda Plan Ninja Empanada 🥟 ¿Te preparamos tus empanadas horneadas esta semana?`);
+    else if (a === 'delc' && c && confirm('¿Eliminar a ' + c.nombre + ' y sus pedidos?')) { db.clientes = db.clientes.filter(x => x.id !== id); db.pedidos = db.pedidos.filter(p => p.cid !== id); push('delC', { id }); render(); }
+    else if (a === 'delp' && confirm('¿Eliminar este pedido?')) { db.pedidos = db.pedidos.filter(p => p.id !== id); push('delP', { id }); render(); }
+    else if (a === 'inact' && c) { c.etapa = 'Inactivo'; push('upsertC', c); render(); }
+    else if (a === 'csvc') descargar('clientes-ninja.csv', csv([['Nombre', 'Teléfono', 'Zona', 'Origen', 'Etapa', 'Notas', 'Pedidos', 'Total entregado']].concat(db.clientes.map(c => { const s = stats(c); return [c.nombre, c.tel, c.zona, c.origen, c.etapa, c.notas, s.n, s.total]; }))), 'text/csv');
+    else if (a === 'csvp') descargar('pedidos-ninja.csv', csv([['Fecha', 'Cliente', 'Estado', 'Empanadas', 'Total', 'Nota']].concat(db.pedidos.map(p => [p.fecha, (cli(p.cid) || {}).nombre, p.estado, unidades(p), p.total, p.nota]))), 'text/csv');
+    else if (a === 'json') descargar('crm-ninja-backup-' + hoy() + '.json', JSON.stringify(db), 'application/json');
+    else if (a === 'wipe' && confirm('Esto borra TODOS los clientes y pedidos. ¿Continuar?') && confirm('Última confirmación: ¿borrar todo?')) { db.clientes = []; db.pedidos = []; push('wipe'); render(); }
+    else if (a === 'cd') el.d.close();
+  });
+  el.d.addEventListener('click', e => { const t = e.target.closest('[data-a="cd"]'); if (t) el.d.close(); });
+  el.root.addEventListener('input', e => {
+    if (e.target.id === 'crm-q') { S.q = e.target.value; $('#crm-list').innerHTML = listaClientes(); }
+  });
+  el.root.addEventListener('change', e => {
+    const t = e.target;
+    if (t.id === 'crm-fe') { S.fe = t.value; $('#crm-list').innerHTML = listaClientes(); }
+    else if (t.dataset.est) { const p = db.pedidos.find(x => x.id === t.dataset.est); p.estado = t.value; sync(p.cid); push('upsertP', { pedido: p, cliente: cli(p.cid) }); render(); }
+    else if (t.id === 'crm-imp' && t.files[0]) {
+      const r = new FileReader();
+      r.onload = () => { try { const d = JSON.parse(r.result); if (!Array.isArray(d.clientes) || !Array.isArray(d.pedidos)) throw 0;
+        if (confirm('Esto reemplaza los datos actuales. ¿Continuar?')) { db = { clientes: d.clientes, pedidos: d.pedidos }; push('replace', db); render(); } } catch (e) { alert('Archivo no válido.'); } };
+      r.readAsText(t.files[0]);
+    }
+  });
+
+  /* ── Acceso con PIN ── */
+  function abrirApp() { el.gate.hidden = true; el.app.hidden = false; el.app.style.display = 'flex'; render(); }
+  function abrir() {
+    el.root.hidden = false; document.body.classList.add('crm-open');
+    const sp = sessionStorage.getItem('pne_crm_pin'); if (sp) { PIN = sp; abrirApp(); cargar().catch(() => {}); return; }
+    el.app.hidden = true; el.app.style.display = 'none'; el.gate.hidden = false;
+    el.gate.innerHTML = `<h2 style="color:var(--g)">🔐 Acceso privado</h2><form id="crm-gf"><input type="password" inputmode="numeric" id="crm-pin" placeholder="PIN" autocomplete="off"><br><button class="b">Entrar</button></form><p id="crm-err" style="color:#f87171;margin-top:.6rem"></p>`;
+    $('#crm-gf').onsubmit = e => { e.preventDefault();
+      PIN = $('#crm-pin').value; $('#crm-err').style.color = '#bfb0ee'; $('#crm-err').textContent = 'Conectando…';
+      cargar().then(() => { try { sessionStorage.setItem('pne_crm_pin', PIN); } catch (x) {} abrirApp(); })
+        .catch(x => { $('#crm-err').style.color = '#f87171'; $('#crm-err').textContent = x.message; }); };
+    setTimeout(() => $('#crm-pin') && $('#crm-pin').focus(), 50);
+  }
+  function cerrar() { el.root.hidden = true; document.body.classList.remove('crm-open'); if (location.hash === '#crm') history.replaceState(null, '', location.pathname + location.search); }
+  $('#crm-close').onclick = cerrar;
+  $('#crm-ref').onclick = () => cargar().catch(() => {});
+  setInterval(() => { if (!el.root.hidden && PIN && el.app.style.display === 'flex' && !el.d.open && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) cargar().catch(() => {}); }, 60000);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.root.hidden && !el.d.open) cerrar(); });
+  const ruta = () => { if (location.hash === '#crm') abrir(); };
+  window.addEventListener('hashchange', ruta); ruta();
+})();
+</script>
+
 </body>
 </html>
