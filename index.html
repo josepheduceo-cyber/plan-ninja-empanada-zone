@@ -1227,6 +1227,20 @@
     z-index: 1;
   }
 
+  /* FONDO DE CUSCO detrás de "¿Listo para tu Misión?" (se activa solo si la foto existe) */
+  .cta-section.has-bg {
+    background-image: linear-gradient(rgba(0,0,0,0.10), rgba(0,0,0,0.10)), var(--cta-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .cta-section.has-bg .cta-box {
+    background: rgba(192,57,43,0.72);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  }
+
   .cta-btns {
     display: flex;
     gap: 1rem;
@@ -1419,6 +1433,17 @@
   .info-card a:hover {
     color: #fff;
   }
+
+  /* BOTONES WHATSAPP (tarjeta Contacto) */
+  .wa-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.35rem 0 0.7rem; }
+  .info-card a.wa-btn {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: #25D366; color: #fff; text-decoration: none; font-weight: 900;
+    font-size: 0.95rem; padding: 0.65rem 1rem; border-radius: 50px; min-height: 44px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: transform 0.2s, background 0.2s;
+  }
+  .info-card a.wa-btn small { font-size: 0.7rem; font-weight: 800; opacity: 0.9; }
+  .info-card a.wa-btn:hover { background: #1ebe5a; color: #fff; transform: translateY(-2px); }
 
   /* FOOTER */
   footer {
@@ -2158,7 +2183,7 @@
       <span class="info-icon">📲</span>
       <div>
         <h4 class="info-card-title">Contacto</h4>
-        <p>WhatsApp: +51996989580<br>+51984757668<br>+51961711421<br><a href="https://www.facebook.com/empanadascusco/" target="_blank" rel="noopener">Facebook</a> · <a href="https://www.instagram.com/planninjaempanadacusco/" target="_blank" rel="noopener">Instagram</a><br><a href="https://josepheduceo-cyber.github.io/plan-ninja-empanada/" target="_blank" rel="noopener">📲 Pedir desde la App</a></p>
+        <div class="wa-list"><a class="wa-btn" href="https://wa.me/51996989580?text=Hola!%20Quiero%20pedir%20empanadas%20🥟" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp al +51 996 989 580">💬 +51 996 989 580<small>Principal</small></a><a class="wa-btn" href="https://wa.me/51984757668?text=Hola!%20Quiero%20pedir%20empanadas%20🥟" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp al +51 984 757 668">💬 +51 984 757 668</a><a class="wa-btn" href="https://wa.me/51961711421?text=Hola!%20Quiero%20pedir%20empanadas%20🥟" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp al +51 961 711 421">💬 +51 961 711 421</a></div><p><a href="https://www.facebook.com/empanadascusco/" target="_blank" rel="noopener">Facebook</a> · <a href="https://www.instagram.com/planninjaempanadacusco/" target="_blank" rel="noopener">Instagram</a><br><a href="https://josepheduceo-cyber.github.io/plan-ninja-empanada/" target="_blank" rel="noopener">📲 Pedir desde la App</a></p>
       </div>
     </div>
   </div>
@@ -3162,5 +3187,19 @@
 })();
 </script>
 
+<script>
+/* Fondo de Cusco: busca assets/cusco/fondo1.(jpg|jpeg|png|webp) y lo aplica si existe */
+(() => {
+  const sec = document.getElementById('contacto'); if (!sec) return;
+  const nombres = ['fondo1.jpg', 'fondo1.jpeg', 'fondo1.png', 'fondo1.webp', 'fondo1.JPG', 'fondo1.JPEG', 'fondo1.PNG'];
+  (function probar(i) {
+    if (i >= nombres.length) return;
+    const im = new Image(), url = 'assets/cusco/' + nombres[i];
+    im.onload = () => { sec.style.setProperty('--cta-bg', 'url("' + url + '")'); sec.classList.add('has-bg'); };
+    im.onerror = () => probar(i + 1);
+    im.src = url;
+  })(0);
+})();
+</script>
 </body>
 </html>
