@@ -155,6 +155,29 @@
     padding: 6rem 2rem 4rem;
   }
 
+
+  /* ===== VIDEO DE FONDO DEL HERO (portada arranque, 10 s en loop) ===== */
+  .hero-bg-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center center;
+    z-index: 0; pointer-events: none;
+    opacity: 0; transition: opacity .6s linear;
+    background: #080611;
+  }
+  .hero-bg-video.is-active { opacity: 1; }
+  .hero-bg-shade {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(8,6,17,0.10) 0%, rgba(8,6,17,0.50) 72%),
+      linear-gradient(180deg, rgba(8,6,17,0.55) 0%, rgba(8,6,17,0.18) 32%, rgba(8,6,17,0.72) 100%),
+      linear-gradient(135deg, rgba(139,92,246,0.18), rgba(217,70,239,0.10));
+  }
+  /* capas: video(0) < sombra(1) < cuadricula y brillo(2) < efectos(3-4) < contenido(5) */
+  .hero-bg-pattern, .hero-glow { z-index: 2; pointer-events: none; }
+  .hero-glow { mix-blend-mode: screen; }
+  .hero-content h1, .hero-sub { text-shadow: 0 2px 18px rgba(0,0,0,0.75); }
+  .hero-badge { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
   .hero-bg-pattern {
     position: absolute;
     inset: 0;
@@ -1798,7 +1821,7 @@
       scroll-behavior: auto !important;
     }
     .reveal { opacity: 1; transform: none; }
-    .particles, .motion-layer, .hero-slice-show { display: none; }
+    .particles, .motion-layer, .hero-slice-show, .hero-bg-video { display: none; }
   }
 </style>
 </head>
@@ -1833,6 +1856,11 @@
 
 <!-- HERO -->
 <section id="inicio" class="hero">
+  <video class="hero-bg-video" id="hero-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1" disablepictureinpicture poster="assets/video.portada.inicio/poster.jpg">
+    <source src="assets/video.portada.inicio/video.portada.arranque.mp4" type="video/mp4">
+    <source src="assets/video.portada.inicio/video.portada.arranque.webm" type="video/webm; codecs=vp9">
+  </video>
+  <div class="hero-bg-shade" aria-hidden="true"></div>
   <div class="hero-bg-pattern"></div>
   <div class="hero-glow"></div>
   <div class="hero-slice-show" aria-hidden="true">
@@ -1863,6 +1891,41 @@
   </div>
   <div class="hero-scroll">▼ Desplaza</div>
 </section>
+
+<script>
+/* Video de fondo del hero: se repite siempre (loop nativo + 3 respaldos automaticos) */
+(function(){
+  var v=document.getElementById('hero-bg-video'); if(!v) return;
+  v.muted=true; v.defaultMuted=true; v.loop=true;
+  var visible=true, last=-1, stuck=0;
+  function play(){ var r=v.play(); if(r&&r.catch) r.catch(function(){}); }
+  function restart(){ try{ v.currentTime=0; }catch(e){} play(); }
+
+  v.addEventListener('playing', function(){ v.classList.add('is-active'); });
+  v.addEventListener('canplay', function(){ if(visible && v.paused) play(); });
+  v.addEventListener('ended', restart);
+  v.addEventListener('timeupdate', function(){
+    if(v.duration && isFinite(v.duration) && v.currentTime >= v.duration-0.15) restart();
+  });
+  setInterval(function(){
+    if(!visible || document.hidden) { stuck=0; return; }
+    if(v.paused || v.ended){ play(); stuck=0; return; }
+    if(!v.seeking && v.readyState>=2 && v.currentTime===last){ if(++stuck>=4){ restart(); stuck=0; } }
+    else stuck=0;
+    last=v.currentTime;
+  }, 500);
+
+  if(v.readyState>=2) play(); else v.addEventListener('loadeddata', play, {once:true});
+
+  var hero=document.getElementById('inicio');
+  if('IntersectionObserver' in window && hero){
+    new IntersectionObserver(function(e){ visible=e[0].isIntersecting; if(visible) play(); else v.pause(); },{threshold:0.05}).observe(hero);
+  }
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) v.pause(); else if(visible) play(); });
+  ['touchstart','click','keydown'].forEach(function(ev){ document.addEventListener(ev, function(){ if(v.paused && visible) play(); },{once:true,passive:true}); });
+})();
+</script>
+
 
 <!-- DIVIDER -->
 <div class="divider"></div>
@@ -2169,7 +2232,7 @@
       <span class="info-icon">⏰</span>
       <div>
         <h4 class="info-card-title">Horario</h4>
-        <p>Todos los sábados &amp; pedidos<br>con anticipación de 3 a 4 días<br>9:00 AM – 5:00 PM</p>
+        <p>Sábados desde las 8:00 a.m.<br>Lun–Vie: eventos desde 25 empanadas<br>con 2 días de anticipación</p>
       </div>
     </div>
     <div class="info-card reveal" style="transition-delay:0.2s">
@@ -2341,7 +2404,7 @@
   .pnb-typing i:nth-child(2) { animation-delay: .15s; } .pnb-typing i:nth-child(3) { animation-delay: .3s; }
   @keyframes pnbDot { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-5px); opacity: 1; } }
 
-  .pnb-chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: .35rem .9rem .6rem; max-height: 112px; overflow-y: auto; }
+  .pnb-chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: .35rem .9rem .6rem; max-height: 132px; overflow-y: auto; }
   .pnb-chips:empty { display: none; }
   .pnb-chip { background: transparent; color: #F8C471; border: 1px solid rgba(248,196,113,.6); border-radius: 50px; padding: .38rem .8rem; font: 700 .8rem 'Nunito', sans-serif; cursor: pointer; transition: all .15s; }
   .pnb-chip:hover { background: #F8C471; color: #1A1A1A; }
@@ -2372,6 +2435,15 @@
   .pnb-btn.pnb-wa { background: #25D366; color: #fff !important; }
   .pnb-sum { margin: .4rem 0 0; padding-left: 1.1rem; }
 
+
+  .pnb-status { display: block; width: max-content; max-width: 100%; margin-top: .3rem; padding: .12rem .55rem; border-radius: 50px; background: rgba(248,196,113,.18); border: 1px solid rgba(248,196,113,.5); color: #F8C471; font-size: .66rem; font-weight: 800; line-height: 1.3; }
+  .pnb-hint { font-size: .78rem; opacity: .85; margin: 0 0 .4rem; line-height: 1.3; }
+  .pnb-warn { margin-top: .55rem; padding: .55rem .7rem; border-radius: 12px; background: rgba(239,68,68,.14); border: 1px solid rgba(239,68,68,.6); font-size: .86rem; line-height: 1.4; }
+  .pnb-yape { margin-top: .6rem; padding: .55rem .7rem; border-radius: 12px; background: rgba(139,92,246,.18); border: 1px solid rgba(139,92,246,.55); font-size: .85rem; line-height: 1.4; }
+  .pnb-flow { list-style: none; margin: .5rem 0 0; padding: 0; }
+  .pnb-flow li { display: flex; gap: .55rem; align-items: flex-start; padding: .2rem 0; font-size: .84rem; line-height: 1.3; }
+  .pnb-flow li .n { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #F39C12, #F8C471); color: #1A1A1A; font-size: .75rem; }
+
   @media (min-width: 481px) {
     .pnb-launcher { width: 92px; right: 18px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
     .pnb-panel { right: 18px; bottom: calc(168px + env(safe-area-inset-bottom, 0px)); height: min(620px, calc(100vh - 280px)); height: min(620px, calc(100dvh - 280px)); }
@@ -2397,14 +2469,14 @@
   <section class="pnb-panel" id="pnb-panel" role="dialog" aria-label="Chat de Plan Ninja Empanada" hidden>
     <header class="pnb-head">
       <div class="pnb-avatar" aria-hidden="true"><img class="pnb-img" src="assets/chatbot/chat.empanada.png" alt="" onerror="this.replaceWith(document.createTextNode('🥷'))"></div>
-      <div class="pnb-title"><strong>Sensei Ninja</strong><small>Asistente de Plan Ninja Empanada</small></div>
+      <div class="pnb-title"><strong>Sensei Ninja</strong><small>Asistente de Plan Ninja Empanada</small><span class="pnb-status" id="pnb-status"></span></div>
       <button type="button" id="pnb-reset" title="Reiniciar chat" aria-label="Reiniciar chat">↺</button>
       <button type="button" id="pnb-close" aria-label="Cerrar chat">✕</button>
     </header>
     <div class="pnb-log" id="pnb-log" role="log" aria-live="polite"></div>
     <div class="pnb-chips" id="pnb-chips"></div>
     <form class="pnb-form" id="pnb-form" autocomplete="off">
-      <input id="pnb-input" type="text" maxlength="300" placeholder="Escribe tu pregunta o pedido…" aria-label="Escribe tu mensaje">
+      <input id="pnb-input" type="text" maxlength="300" placeholder="Ej.: 20 de carne para el sábado…" aria-label="Escribe tu mensaje">
       <button type="submit" aria-label="Enviar mensaje">➤</button>
     </form>
   </section>
@@ -2419,13 +2491,15 @@
     whatsapp: '51996989580',                       // número principal, sin + ni espacios
     phones: ['+51 996 989 580', '+51 984 757 668', '+51 961 711 421'],
     address: 'Urb. Los Licenciados, Pasaje Loa H-7, Cusco, Perú',
-    schedule: 'Todos los sábados y pedidos con anticipación de 3 a 4 días · 9:00 AM – 5:00 PM',
-    delivery: 'Atendemos a toda la ciudad del Cusco, previa coordinación.',
+    schedule: 'Sábados desde las 8:00 a.m. · Pedidos de lunes a viernes desde 25 empanadas, con 2 días de anticipación',
+    delivery: 'Atendemos a toda la ciudad del Cusco, previa coordinación por WhatsApp.',
     facebook: 'https://www.facebook.com/empanadascusco/',
     instagram: 'https://www.instagram.com/planninjaempanadacusco/',
     appUrl: 'https://josepheduceo-cyber.github.io/plan-ninja-empanada/',
-    premiumNote: 'Mismos sabores y descripciones que la Clásica, con su propia identidad visual Edición Dorada.',
-    minAdvanceDays: 3,                             // anticipación mínima de pedidos (solo para avisar)
+    premiumNote: 'Mismos sabores que la Clásica, con molde más grande y su propia identidad visual Edición Dorada.',
+    minAdvanceDays: 2,                             // anticipación mínima (días)
+    weekdayMin: 25,                                // mínimo de empanadas de lunes a viernes (eventos)
+    saturdayHour: '8:00 a.m.',                     // hora de salida de la hornada del sábado
     teaserDelayMs: 6000,
     aiEndpoint: ''     // OPCIONAL: URL de TU backend/proxy con IA. Nunca pongas API keys aquí.
   };
@@ -2494,7 +2568,7 @@
   var started = false, unknownCount = 0, history = [];
   var queue = Promise.resolve();
 
-  function newOrder() { return { active: false, name: '', when: '', time: '', soon: false, delivery: '', address: '', note: '', defaultLine: null }; }
+  function newOrder() { return { active: false, name: '', when: '', time: '', date: null, soon: false, delivery: '', address: '', note: '', defaultLine: null }; }
   function resetPend() { pend = { lines: [], qty: 0, flavors: [], ack: [] }; }
   function totals() {
     var u = 0, t = 0;
@@ -2550,13 +2624,14 @@
 
   var CHIPS = {
     main: [
-      { label: '🥟 Ver menú', intent: 'menu' }, { label: '💰 Precios', intent: 'precio' },
-      { label: '🛒 Hacer pedido', run: orderChip }, { label: '⏰ Horarios', intent: 'horario' },
-      { label: '🛵 Delivery', intent: 'delivery' }, { label: '📍 Ubicación', intent: 'ubicacion' }
+      { label: '🔥 Sábado ninja', intent: 'horario' }, { label: '🛒 Hacer pedido', run: orderChip },
+      { label: '🥟 Menú y precios', intent: 'menu' }, { label: '🎉 Eventos (25+)', intent: 'mayor' },
+      { label: '💳 Cómo pagar', intent: 'pago' }, { label: '📖 Nuestra historia', intent: 'historia' },
+      { label: '📍 Ubicación', intent: 'ubicacion' }
     ],
     after: [
-      { label: '🛒 Hacer pedido', run: orderChip }, { label: '🥟 Ver menú', intent: 'menu' },
-      { label: '📞 Contacto', intent: 'contacto' }
+      { label: '🛒 Hacer pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' },
+      { label: '🧭 Cómo funciona', intent: 'como' }, { label: '📞 Contacto', intent: 'contacto' }
     ]
   };
   function chipsAfterAnswer() {
@@ -2642,14 +2717,14 @@
   function today0() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   function addDays(d, k) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + k); }
   function fmtDate(d) { return DAYS_L[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1); }
-  function nextSaturday() { var d = addDays(today0(), CONFIG.minAdvanceDays); while (d.getDay() !== 6) d = addDays(d, 1); return d; }
+  function nextSaturday() { var d = addDays(today0(), premiumUnits() ? CONFIG.minAdvanceDays : 1); while (d.getDay() !== 6) d = addDays(d, 1); return d; }
   function parseTime(n) {
     var tm = /\ba las? (\d{1,2})(?: (\d{2}))?(?: ?(am|pm|de la manana|de la tarde|de la noche))?\b/.exec(n) || /\b(\d{1,2})(?: (\d{2}))? ?(am|pm)\b/.exec(n);
     if (!tm) return '';
     var h = +tm[1], mi = tm[2] || '00', ap = tm[3] || '';
     if (h > 23) return '';
     if (/pm|tarde|noche/.test(ap) && h < 12) h += 12;
-    else if (!ap && h >= 1 && h <= 7) h += 12;          // horario de atención 9 am – 5 pm
+    else if (!ap && h >= 1 && h <= 6) h += 12;
     if (/am|manana/.test(ap) && h === 12) h = 0;
     return pad(h) + ':' + mi;
   }
@@ -2681,7 +2756,7 @@
   }
   function whenLabel() { return order.when + (order.time && order.when !== 'Por coordinar' ? ' · ' + order.time : ''); }
   function setWhen(w) {
-    if (w.date) { order.when = w.label; order.soon = w.soon; }
+    if (w.date) { order.when = w.label; order.soon = w.soon; order.date = w.date; }
     if (w.time) order.time = w.time;
   }
 
@@ -2724,25 +2799,57 @@
     };
   }
 
+  /* ── Historia ninja (storytelling interactivo) ── */
+  var STORY = [
+    { t: '📜 Capítulo 1 · La leyenda', p: [
+      'Cuentan que en el Cusco, entre cerros, techos de teja y un aire tan fino como el hambre es grande, nació una misión secreta: <b>hacer la empanada más épica de la ciudad</b>. 🏔️',
+      'No bastaba con que fuera rica. Tenía que ser <b>rellena, crujiente y hecha con corazón</b>.'] },
+    { t: '🥷 Capítulo 2 · Los tres guardianes', p: [
+      'Para proteger la receta se unieron <b>tres ninjas guardianes del sabor</b>: uno de negro, uno de blanco y uno de rojo.',
+      'Su juramento es simple: <b>cero empanadas tristes, frías o a medias</b>. Solo masa dorada, relleno sabroso y mucho cariño en cada mordida.'] },
+    { t: '🔥 Capítulo 3 · El ritual del sábado', p: [
+      'Cada sábado, mientras el Cusco despierta, el horno se enciende. A las <b>8:00 a.m.</b> sale la primera hornada: <b>recién horneadas y bien calientitas</b>, con ese crujido que se escucha hasta en la otra cuadra. 🥟',
+      '🥩 Carne · 🍗 Pollo · 🌟 Mixta… ¿cuál será tu elegida? Las Clásicas (S/. 3.00) las puedes <b>reservar durante la semana</b> con pago anticipado por Yape.'] },
+    { t: '👑 Capítulo 4 · La Edición Dorada y los grandes eventos', p: [
+      'Para los antojos grandes existe la <b>Línea Premium (S/. 5.00)</b>: su molde es más grande y por eso sale <b>solo bajo pedido</b>. ✨',
+      'Y cuando tienes un evento de <b>lunes a viernes</b>, el equipo ninja se despliega desde <b>25 empanadas</b>, con 2 días de anticipación. 🎉',
+      '<b>Tu misión:</b> elige tus sabores, escríbenos por WhatsApp y paga por Yape. ¿Aceptas, guerrero/a del antojo?'] }
+  ];
+  function storyChapter(i) {
+    var c = STORY[i], last = i === STORY.length - 1;
+    var parts = c.p.slice(); parts[0] = '<b>' + c.t + '</b><br>' + parts[0];
+    say(parts, last
+      ? [{ label: '🛒 ¡Acepto la misión!', run: orderChip }, { label: '🔥 Sábado ninja', intent: 'horario' }, { label: '🥟 Menú y precios', intent: 'menu' }]
+      : [{ label: '▶ Siguiente capítulo', run: function () { storyChapter(i + 1); } }, { label: '🛒 Saltar al pedido', run: orderChip }]);
+  }
+  function findIntent(id) { return INTENTS.filter(function (i) { return i.id === id; })[0]; }
+
   var INTENTS = [
     { id: 'saludo', keys: ['hola', 'buenas', 'buenos', 'hey', 'saludos', 'buen dia', 'buenas tardes', 'buenas noches', 'alo'],
       answer: function () { return { parts: ['¡Hola! 🥷 ¿En qué misión te ayudo hoy?'], chips: CHIPS.main }; } },
 
+    { id: 'como', keys: ['como funciona', 'como pido', 'como pedir', 'como reservo', 'como reservar', 'como compro', 'como hago', 'proceso', 'pasos', 'ayuda', 'ayudame', 'que hago', 'instrucciones'],
+      answer: function () {
+        return { parts: ['🧭 <b>Así funciona (¡es fácil!)</b><br>1️⃣ Eliges tus empanadas y la fecha aquí.<br>2️⃣ Envías el pedido por <b>WhatsApp</b> para coordinar mejor.<br>3️⃣ Pagas por <b>Yape</b> (pago anticipado): tu pedido se atiende previa cancelación.<br>4️⃣ ¡Horneamos y disfrutas calientitas! 🔥',
+                         '<small>🔥 Sábados desde las ' + CONFIG.saturdayHour + ' (Clásica S/. 3.00) · 👑 Premium S/. 5.00 solo bajo pedido · 🎉 Lunes a viernes: desde ' + CONFIG.weekdayMin + ' empanadas con ' + CONFIG.minAdvanceDays + ' días de anticipación.</small>'],
+                 chips: [{ label: '🛒 Hacer pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
+      } },
+
     { id: 'menu', keys: ['menu', 'carta', 'sabores', 'sabor', 'que venden', 'que tienen', 'variedad', 'opciones', 'productos'],
       answer: function () {
         return { parts: [
-          '🗡️ <b>Arsenal de sabores</b>: tres sabores en dos líneas.',
-          '🔥 <b>Línea Clásica · ' + money(LINES.clasica.price) + '</b><br>🥩 Carne · 🍗 Pollo · 🌟 Mixta<br>' +
-          '👑 <b>Línea Premium (Edición Dorada) · ' + money(LINES.premium.price) + '</b><br>Los mismos tres sabores.'
+          '🗡️ <b>Arsenal de sabores</b>: 🥩 Carne · 🍗 Pollo · 🌟 Mixta, en dos líneas.',
+          '🔥 <b>Línea Clásica · ' + money(LINES.clasica.price) + '</b><br>Sale <b>todos los sábados desde las ' + CONFIG.saturdayHour + '</b>, recién horneada. Puedes reservarla durante la semana con pago anticipado por Yape.',
+          '👑 <b>Línea Premium · ' + money(LINES.premium.price) + '</b><br>Solo <b>bajo pedido</b>, porque su molde es más grande. Pídela con mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación.'
         ], chips: [
           { label: '🥩 Carne', intent: 'carne' }, { label: '🍗 Pollo', intent: 'pollo' }, { label: '🌟 Mixta', intent: 'mixta' },
-          { label: '🛒 Hacer pedido', run: orderChip }
+          { label: '🛒 Hacer pedido', run: orderChip }, { label: '🧭 Cómo funciona', intent: 'como' }
         ] };
       } },
 
     { id: 'precio', keys: ['precio', 'precios', 'cuesta', 'cuanto', 'costo', 'vale', 'tarifa', 's/', 'soles', 'barato'],
       answer: function () {
-        return { parts: ['💰 <b>Precios por unidad</b><br>🔥 Línea Clásica: <b>' + money(LINES.clasica.price) + '</b><br>👑 Línea Premium: <b>' + money(LINES.premium.price) + '</b><br><small>Tip: escríbeme "¿cuánto salen 20 de carne?" y te calculo el total.</small>'],
+        return { parts: ['💰 <b>Precios por unidad</b><br>🔥 Línea Clásica: <b>' + money(LINES.clasica.price) + '</b> (sale los sábados)<br>👑 Línea Premium: <b>' + money(LINES.premium.price) + '</b> (solo bajo pedido)<br><small>Tip: escríbeme \"¿cuánto salen 20 de carne?\" y te calculo el total.</small>'],
                  chips: CHIPS.after };
       } },
 
@@ -2750,22 +2857,23 @@
     { id: 'pollo', keys: ['pollo', 'pollito'], answer: flavorIntent('pollo') },
     { id: 'mixta', keys: ['mixta', 'mixtas', 'salchicha', 'queso'], answer: flavorIntent('mixta') },
 
-    { id: 'premium', keys: ['premium', 'dorada', 'edicion dorada', 'diferencia', 'diferencias', 'lineas', 'clasica', 'clasicas'],
+    { id: 'premium', keys: ['premium', 'dorada', 'edicion dorada', 'diferencia', 'diferencias', 'lineas', 'clasica', 'clasicas', 'bajo pedido', 'molde', 'grande', 'grandes'],
       answer: function () {
-        return { parts: ['👑 La <b>Línea Premium (Edición Dorada)</b> cuesta <b>' + money(LINES.premium.price) + '</b> y la <b>Clásica</b> ' + money(LINES.clasica.price) + '.',
-                         esc(CONFIG.premiumNote)], chips: CHIPS.after };
+        return { parts: ['👑 La <b>Línea Premium (Edición Dorada)</b> cuesta <b>' + money(LINES.premium.price) + '</b> y sale <b>solo bajo pedido</b>, porque su <b>molde es más grande</b>. Necesita ' + CONFIG.minAdvanceDays + ' días de anticipación.',
+                         '🔥 La <b>Clásica</b> (' + money(LINES.clasica.price) + ') sale <b>todos los sábados</b> desde las ' + CONFIG.saturdayHour + '. ' + esc(CONFIG.premiumNote)], chips: CHIPS.after };
       } },
 
-    { id: 'horario', keys: ['horario', 'horarios', 'hora', 'horas', 'abren', 'abierto', 'atienden', 'sabado', 'sabados', 'cuando', 'dias', 'anticipacion', 'atencion', 'demora', 'demoran', 'tiempo', 'tardan'],
+    { id: 'horario', keys: ['horario', 'horarios', 'hora', 'horas', 'abren', 'abierto', 'atienden', 'sabado', 'sabados', 'hornada', 'hornean', 'calientes', 'calientitas', 'recien', 'salen', 'sacan', 'cuando', 'dias', 'atencion', 'disponible', 'disponibilidad', 'demora', 'demoran', 'tiempo', 'tardan'],
       answer: function () {
-        return { parts: ['⏰ <b>Horario</b><br>' + esc(CONFIG.schedule),
-                         'Para coordinar tu fecha, te ayudo a armar el pedido o escríbenos por <a href="' + waLink() + '" target="_blank" rel="noopener">WhatsApp</a>.'],
-                 chips: CHIPS.after };
+        return { parts: ['🔥 <b>Sábado Ninja</b><br>Todos los sábados desde las <b>' + CONFIG.saturdayHour + '</b> sacamos las empanadas <b>recién horneadas y bien calientitas</b> (Clásicas · ' + money(LINES.clasica.price) + '). Puedes <b>reservarlas durante la semana</b> con pago anticipado por Yape.',
+                         '🎉 <b>De lunes a viernes</b> atendemos <b>pedidos para todo tipo de eventos desde ' + CONFIG.weekdayMin + ' empanadas</b>, con coordinación previa de <b>mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación</b>.',
+                         '<small>' + statusPill() + '</small>'],
+                 chips: [{ label: '🛒 Reservar las mías', run: orderChip }, { label: '🎉 Eventos (25+)', intent: 'mayor' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
       } },
 
     { id: 'delivery', keys: ['delivery', 'envio', 'envios', 'entrega', 'entregan', 'domicilio', 'reparto', 'llevan', 'traen', 'moto', 'zona'],
       answer: function () {
-        return { parts: ['🛵 <b>Delivery</b><br>' + esc(CONFIG.delivery) + ' Recuerda que los pedidos se hacen con 3 a 4 días de anticipación.'],
+        return { parts: ['🛵 <b>Delivery</b><br>' + esc(CONFIG.delivery) + ' Lo coordinamos por WhatsApp junto con tu pedido (sábados y pedidos entre semana).'],
                  chips: CHIPS.after };
       } },
 
@@ -2776,44 +2884,62 @@
 
     { id: 'contacto', keys: ['contacto', 'telefono', 'llamar', 'llamada', 'numero', 'celular', 'whatsapp', 'wasap', 'redes', 'facebook', 'instagram', 'escribir'],
       answer: function () {
-        var tels = CONFIG.phones.map(function (p) { return '<a href="tel:' + p.replace(/\s/g, '') + '">' + esc(p) + '</a>'; }).join('<br>');
+        var tels = CONFIG.phones.map(function (p) { return '<a href=\"tel:' + p.replace(/\s/g, '') + '\">' + esc(p) + '</a>'; }).join('<br>');
         return { parts: ['📲 <b>Contacto</b><br>' + tels,
-                         '<a href="' + waLink('¡Hola! Quiero pedir empanadas 🥟') + '" target="_blank" rel="noopener">💬 Escribir por WhatsApp</a><br>' +
-                         '<a href="' + CONFIG.facebook + '" target="_blank" rel="noopener">Facebook</a> · <a href="' + CONFIG.instagram + '" target="_blank" rel="noopener">Instagram</a>'],
+                         'Los pedidos se hacen por <b>WhatsApp</b>, para coordinar mejor:<br><a href=\"' + waLink('¡Hola! Quiero pedir empanadas 🥟') + '\" target=\"_blank\" rel=\"noopener\">💬 Escribir por WhatsApp</a><br>' +
+                         '<a href=\"' + CONFIG.facebook + '\" target=\"_blank\" rel=\"noopener\">Facebook</a> · <a href=\"' + CONFIG.instagram + '\" target=\"_blank\" rel=\"noopener\">Instagram</a>'],
                  chips: CHIPS.after };
       } },
 
-    { id: 'pedido', keys: ['pedir', 'pedido', 'pedidos', 'ordenar', 'orden', 'comprar', 'quiero', 'quisiera', 'encargar', 'encargo', 'reservar', 'docena', 'media docena'],
+    { id: 'pedido', keys: ['pedir', 'pedido', 'pedidos', 'ordenar', 'orden', 'comprar', 'quiero', 'quisiera', 'encargar', 'encargo', 'reservar', 'reserva', 'reservo', 'apartar', 'docena', 'media docena'],
       answer: function () { orderChip(); return null; } },
 
-    { id: 'mayor', keys: ['por mayor', 'mayor', 'evento', 'cumpleanos', 'fiesta', 'oficina', 'reunion', 'catering', 'bastantes', 'muchas'],
+    { id: 'mayor', keys: ['por mayor', 'mayor', 'evento', 'eventos', 'cumpleanos', 'fiesta', 'oficina', 'reunion', 'catering', 'bastantes', 'muchas', 'lunes a viernes', 'entre semana', 'minimo', 'cantidad minima'],
       answer: function () {
-        return { parts: ['🎉 ¡Para eventos y pedidos grandes, mejor! Recuerda pedir con <b>3 a 4 días de anticipación</b>.',
-                         'Escríbeme tu lista (ej.: <i>"50 de carne y 30 de pollo para el sábado"</i>) y la dejo lista para enviar por WhatsApp.'],
-                 chips: [{ label: '🛒 Hacer pedido', run: orderChip }, { label: '📞 Contacto', intent: 'contacto' }] };
+        return { parts: ['🎉 <b>Eventos y pedidos grandes</b><br>De <b>lunes a viernes</b> atendemos pedidos <b>desde ' + CONFIG.weekdayMin + ' empanadas</b> para todo tipo de eventos (cumpleaños, oficinas, reuniones, fiestas…).',
+                         '📆 Se coordinan con <b>mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación</b>, por WhatsApp y con pago previo por Yape.',
+                         'Escríbeme tu lista (ej.: <i>\"50 de carne y 30 de pollo para el miércoles\"</i>) y la dejo lista para enviar.'],
+                 chips: [{ label: '🛒 Hacer pedido', run: orderChip }, { label: '🧮 ¿Cuántas necesito?', intent: 'cuantas' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
       } },
 
-    { id: 'pago', keys: ['pago', 'pagos', 'pagar', 'yape', 'plin', 'efectivo', 'tarjeta', 'transferencia', 'deposito'],
+    { id: 'cuantas', keys: ['cuantas', 'personas', 'invitados', 'alcanzan', 'alcanza', 'recomiendas', 'recomienda', 'recomendacion', 'sugieres', 'para cuantos', 'cuantas necesito'],
+      answer: function (text) {
+        var n = norm(text || ''), m = /(\d{1,3}) (personas|invitados|amigos|pax|gente)/.exec(n);
+        if (m) {
+          var p = +m[1], lo = p * 2, hi = p * 3;
+          return { parts: ['🧮 Para <b>' + p + ' personas</b>, como referencia calcula <b>2 a 3 empanadas por persona</b>: entre <b>' + lo + ' y ' + hi + '</b> empanadas.<br>En Línea Clásica serían de <b>' + money(lo * LINES.clasica.price) + '</b> a <b>' + money(hi * LINES.clasica.price) + '</b>.' +
+                           (hi < CONFIG.weekdayMin ? '<br><small>Recuerda: entre semana el mínimo es de ' + CONFIG.weekdayMin + ' empanadas; los sábados no hay mínimo.</small>' : '')],
+                   chips: [{ label: '🛒 Armar mi pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' }] };
+        }
+        return { parts: ['🧮 Dime <b>para cuántas personas</b> y te calculo cuántas empanadas necesitas. Ej.: <i>\"para 15 personas\"</i>.'],
+                 chips: [10, 20, 30].map(function (q) { return { label: '👥 ' + q + ' personas', run: function () { answerIntent(findIntent('cuantas'), 'para ' + q + ' personas'); } }; }) };
+      } },
+
+    { id: 'pago', keys: ['pago', 'pagos', 'pagar', 'yape', 'plin', 'efectivo', 'tarjeta', 'transferencia', 'deposito', 'adelanto', 'adelantado', 'anticipado', 'abono', 'metodo', 'metodos'],
       answer: function () {
-        return { parts: ['💳 Los medios de pago se coordinan directamente con el equipo al confirmar tu pedido por WhatsApp.'], chips: CHIPS.after };
+        return { parts: ['💳 <b>Pagos por Yape</b><br>Los pedidos se atienden <b>previa cancelación por Yape</b>. Las Clásicas del sábado también se pueden <b>reservar durante la semana con pago anticipado</b>.',
+                         'Cuando envíes tu pedido por <a href=\"' + waLink() + '\" target=\"_blank\" rel=\"noopener\">WhatsApp</a>, el equipo te confirma el monto y el número de Yape. <small>Por seguridad, confirma siempre el número por WhatsApp.</small>'],
+                 chips: CHIPS.after };
       } },
 
     { id: 'ingredientes', keys: ['ingredientes', 'alergia', 'alergico', 'alergias', 'gluten', 'vegetariano', 'vegano', 'picante', 'contiene', 'lleva', 'relleno'],
       answer: function () {
         return { parts: ['🌿 <b>Ingredientes</b><br>🥩 Carne: carne molida, cebolla, ajo, comino y pimienta.<br>🍗 Pollo: pollo sazonado.<br>🌟 Mixta: salchicha, queso y orégano.',
-                         'Si tienes alguna <b>alergia o restricción alimentaria</b>, consúltalo por <a href="' + waLink('Hola, tengo una consulta sobre ingredientes/alergias') + '" target="_blank" rel="noopener">WhatsApp</a> antes de pedir.'],
+                         'Si tienes alguna <b>alergia o restricción alimentaria</b>, consúltalo por <a href=\"' + waLink('Hola, tengo una consulta sobre ingredientes/alergias') + '\" target=\"_blank\" rel=\"noopener\">WhatsApp</a> antes de pedir.'],
                  chips: CHIPS.after };
       } },
 
-    { id: 'nosotros', keys: ['quienes', 'nosotros', 'historia', 'negocio', 'horneadas', 'caseras', 'ninja', 'ninjas', 'calidad'],
+    { id: 'conservar', keys: ['recalentar', 'calentar', 'guardar', 'conservar', 'duran', 'sobran', 'fria', 'frias', 'tibias', 'crujientes'],
       answer: function () {
-        return { parts: ['🥷 Somos <b>Plan Ninja Empanada</b>: empanadas horneadas en casa con amor ninja, en el Cusco. Usamos productos locales para un sabor auténtico cusqueño, recién horneadas y crujientes.'],
-                 chips: CHIPS.after };
+        return { parts: ['🔥 <b>Tip ninja</b><br>Están más ricas recién salidas del horno. Si te sobran, caliéntalas unos minutos en horno o airfryer para recuperar lo crujiente.'], chips: CHIPS.after };
       } },
+
+    { id: 'historia', keys: ['quienes', 'nosotros', 'historia', 'leyenda', 'cuentame', 'origen', 'negocio', 'marca', 'calidad', 'caseras', 'ninja', 'ninjas', 'secreto', 'por que ninja'],
+      answer: function () { storyChapter(0); return null; } },
 
     { id: 'app', keys: ['app', 'aplicacion', 'aplicativo'],
       answer: function () {
-        return { parts: ['📲 También puedes pedir desde nuestra app: <a href="' + CONFIG.appUrl + '" target="_blank" rel="noopener">abrir la app</a>.'], chips: CHIPS.after };
+        return { parts: ['📲 También puedes pedir desde nuestra app: <a href=\"' + CONFIG.appUrl + '\" target=\"_blank\" rel=\"noopener\">abrir la app</a>.'], chips: CHIPS.after };
       } },
 
     { id: 'gracias', keys: ['gracias', 'genial', 'perfecto', 'excelente', 'ok gracias', 'listo'],
@@ -2839,9 +2965,9 @@
     return bestScore >= 1.5 ? best : null;
   }
 
-  function answerIntent(it) {
+  function answerIntent(it, text) {
     unknownCount = 0;
-    var out = it.answer();
+    var out = it.answer(text);
     if (!out) return;
     var chips = out.chips;
     if (order.active && it.id !== 'adios') chips = (mode ? [] : chipsAfterAnswer());
@@ -2861,7 +2987,7 @@
   function beginOrder() { cart = {}; order = newOrder(); order.active = true; resetPend(); if (cartUI) cartUI.lock(); cartUI = null; leadMsg = ''; mode = null; }
   function startOrder() {
     beginOrder(); mode = 'cart';
-    say(['¡Misión aceptada! 🥷 Elige cuántas empanadas quieres y pulsa <b>Continuar</b>.<br><small>O escríbelo directo: <i>"10 de carne y 5 de pollo"</i></small>', cartWidget], []);
+    say(['¡Misión aceptada! 🥷 <small>Paso 1 de 4</small><br>Elige cuántas empanadas quieres y pulsa <b>Continuar</b>.<br><small>O escríbelo directo: <i>"10 de carne y 5 de pollo"</i></small>', cartWidget], []);
   }
   function orderFromText(po, ex, text) { beginOrder(); applyExtras(ex); absorb(po, text); resolvePending(); }
   function resumeOrder() { if (cartUI) { mode = 'cart'; say(['Seguimos 👆 Ajusta tus empanadas y pulsa <b>Continuar</b>.'], []); } else nextStep(); }
@@ -2951,27 +3077,28 @@
   function askName() {
     mode = 'name';
     var s = stored('pnb_name');
-    say([L('¿A <b>nombre de quién</b> va el pedido?')], s ? [{ label: '👤 ' + s, run: function () { setName(s); nextStep(); } }] : []);
+    say([L('<small>Paso 2 de 4</small><br>¿A <b>nombre de quién</b> va el pedido?')], s ? [{ label: '👤 ' + s, run: function () { setName(s); nextStep(); } }] : []);
     input.focus({ preventScroll: true });
   }
   function setName(t) { order.name = tidyName(t) || t.slice(0, 60); store('pnb_name', order.name); }
   function askWhen() {
     mode = 'when';
     var sat = nextSaturday(), w = { date: sat, time: '', label: fmtDate(sat), soon: false };
-    say([L('¿Para <b>qué fecha</b> (y hora) lo necesitas? <small>Ej.: "sábado 10am" o "5/12". Pedidos con 3 a 4 días de anticipación.</small>')],
-        [{ label: '📅 ' + fmtDate(sat), run: function () { setWhen(w); nextStep(); } },
-         { label: 'Lo coordino por WhatsApp', run: function () { order.when = 'Por coordinar'; order.soon = false; nextStep(); } }]);
+    say([L('<small>Paso 3 de 4</small><br>¿Para <b>qué fecha</b> lo necesitas? <small>🔥 Sábados desde las ' + CONFIG.saturdayHour + ' · 🎉 Lunes a viernes: eventos desde ' + CONFIG.weekdayMin + ' empanadas con ' + CONFIG.minAdvanceDays + ' días de anticipación. Puedes escribir: \"sábado 9am\" o \"15/12\".</small>')],
+        [{ label: '🔥 ' + fmtDate(sat) + ' · desde ' + CONFIG.saturdayHour, run: function () { setWhen(w); afterWhen(); nextStep(); } },
+         { label: '🎉 Evento entre semana', run: function () { say(['¡Genial! 🎉 Escribe la <b>fecha de tu evento</b> (con mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación), ej.: <i>\"miércoles 10/12\"</i>.'], []); } },
+         { label: 'Lo coordino por WhatsApp', run: function () { order.when = 'Por coordinar'; order.date = null; order.soon = false; nextStep(); } }]);
   }
   function askDelivery() {
     mode = 'delivery';
-    say([L('¿Lo quieres con <b>delivery</b> o lo <b>recoges</b>? <small>(Delivery en toda la ciudad del Cusco, previa coordinación)</small>')],
+    say([L('<small>Paso 4 de 4</small><br>¿Lo quieres con <b>delivery</b> o lo <b>recoges</b>? <small>(Delivery en toda la ciudad del Cusco, previa coordinación)</small>')],
         [{ label: '🛵 Delivery', run: function () { order.delivery = 'delivery'; nextStep(); } },
          { label: '🏠 Recojo en tienda', run: function () { order.delivery = 'recojo'; nextStep(); } },
          { label: 'Lo coordino por WhatsApp', run: function () { order.delivery = 'coordinar'; nextStep(); } }]);
   }
   function askAddress() {
     mode = 'address';
-    say([L('¿A qué <b>dirección o zona</b> del Cusco te lo llevamos?')],
+    say([L('<small>Paso 4 de 4</small><br>¿A qué <b>dirección o zona</b> del Cusco te lo llevamos?')],
         [{ label: 'Lo coordino por WhatsApp', run: function () { order.address = 'Por coordinar'; nextStep(); } }]);
   }
   function askNote() {
@@ -2992,10 +3119,12 @@
     var box = el('div', 'pnb-cart'), seg = el('div', 'pnb-seg'), rows = el('div'), curLine = order.defaultLine || 'clasica', segBtns = {};
     var totalRow = el('div', 'pnb-total'), totalLabel = el('span'), totalVal = el('span');
     totalRow.appendChild(totalLabel); totalRow.appendChild(totalVal);
+    var hint = el('div', 'pnb-hint');
 
     function refreshTotals() {
       var t = totals();
       totalLabel.textContent = 'Total · ' + t.units + (t.units === 1 ? ' empanada' : ' empanadas'); totalVal.textContent = money(t.total);
+      hint.textContent = curLine === 'premium' ? '👑 Premium: solo bajo pedido (molde más grande) · mín. ' + CONFIG.minAdvanceDays + ' días de anticipación' : '🔥 Clásica: sale todos los sábados desde las ' + CONFIG.saturdayHour + ' · reserva en la semana';
       Object.keys(LINES).forEach(function (lid) {
         var u = 0; FLAVORS.forEach(function (f) { u += cart[f.id + '-' + lid] || 0; });
         segBtns[lid].textContent = LINES[lid].emoji + ' ' + LINES[lid].short + ' ' + money(LINES[lid].price).replace('.00', '') + (u ? ' · ' + u : '');
@@ -3026,7 +3155,7 @@
       b.addEventListener('click', function () { curLine = lid; order.defaultLine = lid; draw(); });
       seg.appendChild(b);
     });
-    box.appendChild(seg); box.appendChild(rows); box.appendChild(totalRow);
+    box.appendChild(seg); box.appendChild(hint); box.appendChild(rows); box.appendChild(totalRow);
 
     var go = el('button', 'pnb-btn', 'Continuar ✓'); go.type = 'button';
     function proceed() {
@@ -3056,6 +3185,45 @@
     if (order.delivery === 'recojo') return 'Recojo en tienda (' + CONFIG.address + ')';
     return 'Por coordinar';
   }
+  /* ── Reglas del negocio: sábados, eventos entre semana, bajo pedido ── */
+  function premiumUnits() { var u = 0; FLAVORS.forEach(function (f) { u += cart[f.id + '-premium'] || 0; }); return u; }
+  function dayDiff(d) { return Math.round((d - today0()) / 86400000); }
+  function bakeDay() { var d = today0(); while (d.getDay() !== 6) d = addDays(d, 1); return d; }
+  function statusPill() {
+    var now = new Date();
+    if (now.getDay() === 6) return '🔥 ¡Hoy es Sábado Ninja! Desde las ' + CONFIG.saturdayHour;
+    return '🔥 Próxima hornada: ' + fmtDate(bakeDay()) + ' · ' + CONFIG.saturdayHour;
+  }
+  function checkRules() {
+    var r = { block: [], info: [], needUnits: 0 }, t = totals(), d = order.date;
+    if (!d) { if (order.when) r.info.push('📌 Fecha <b>por coordinar</b>: el equipo te confirma por WhatsApp.'); return r; }
+    var dow = d.getDay(), diff = dayDiff(d), prem = premiumUnits(), min = CONFIG.minAdvanceDays;
+    if (dow === 0) {
+      r.block.push('Los <b>domingos</b> no tenemos entregas. Elige un <b>sábado</b> (desde las ' + CONFIG.saturdayHour + ') o un día de <b>lunes a viernes</b> para eventos.');
+    } else if (dow === 6) {
+      if (prem && diff < min) r.block.push('La <b>Línea Premium</b> es <b>bajo pedido</b> (molde más grande) y necesita al menos <b>' + min + ' días de anticipación</b>.');
+      else {
+        r.info.push('🔥 Los sábados salen desde las <b>' + CONFIG.saturdayHour + '</b>, recién horneadas y calientitas.');
+        if (prem) r.info.push('👑 La Línea Premium se prepara bajo pedido.');
+        if (diff <= 0) r.info.push('Es para hoy: el equipo confirmará disponibilidad.');
+      }
+      if (order.time && order.time < '08:00') r.info.push('⏰ Salen desde las ' + CONFIG.saturdayHour + '; el equipo ajustará tu hora.');
+    } else {
+      if (t.units < CONFIG.weekdayMin) {
+        r.needUnits = CONFIG.weekdayMin - t.units;
+        r.block.push('De <b>lunes a viernes</b> atendemos pedidos <b>desde ' + CONFIG.weekdayMin + ' empanadas</b> (eventos). Te faltan <b>' + r.needUnits + '</b>. Si necesitas menos, te esperamos el <b>sábado</b> 🔥');
+      }
+      if (diff < min) r.block.push('Entre semana los pedidos se coordinan con <b>mínimo ' + min + ' días de anticipación</b>.');
+    }
+    return r;
+  }
+  function afterWhen() { var r = checkRules(); if (r.block.length) leadMsg = (leadMsg ? leadMsg + '<br>' : '') + '⚠️ ' + r.block.join('<br>⚠️ '); }
+  function orderKind() {
+    if (!order.date) return '';
+    var d = order.date.getDay();
+    return d === 6 ? 'Sábado ninja (hornada desde las ' + CONFIG.saturdayHour + ')' : (d === 0 ? '' : 'Pedido entre semana (evento)');
+  }
+
   function waText() {
     var t = totals(), out = ['¡Hola Plan Ninja! 🥷 Quiero hacer este pedido:', ''];
     Object.keys(LINES).forEach(function (lid) {
@@ -3065,17 +3233,30 @@
       rows.forEach(function (f) { var q = cart[f.id + '-' + lid]; out.push('• ' + q + ' × ' + f.name + ' = ' + money(q * LINES[lid].price)); });
       out.push('');
     });
-    out.push('Total: ' + t.units + ' empanadas · ' + money(t.total), '👤 Nombre: ' + order.name, '📅 Fecha: ' + whenLabel(), '🚚 Entrega: ' + deliveryText());
+    out.push('Total: ' + t.units + ' empanadas · ' + money(t.total), '👤 Nombre: ' + order.name, '📅 Fecha: ' + whenLabel());
+    if (orderKind()) out.push('📌 Tipo: ' + orderKind());
+    out.push('🚚 Entrega: ' + deliveryText());
     if (order.note) out.push('📝 Nota: ' + order.note);
+    out.push('💳 Pago: por Yape (anticipado). Por favor confírmenme monto y número.');
     return out.join('\n');
   }
 
   function showSummary() {
     mode = null;
-    var url = waLink(waText());
-    var tail = (order.soon ? '⚠️ Ojo: los pedidos se toman con 3 a 4 días de anticipación; igual el equipo revisará si es posible. ' : '') +
-      'Tu pedido se confirma cuando lo envías por WhatsApp: ahí el equipo valida disponibilidad y coordina entrega y pago.';
-    say([L('Así quedó tu pedido 👇'), function () {
+    var rl = checkRules(), blocked = rl.block.length > 0, url = waLink(waText());
+    function fixChips() {
+      var c = [];
+      if (rl.needUnits) c.push({ label: '➕ Agregar empanadas', run: function () { mode = 'cart'; say(['Te faltan <b>' + rl.needUnits + '</b> para llegar a ' + CONFIG.weekdayMin + ' 👇', cartWidget], []); } });
+      c.push({ label: '📅 Elegir otra fecha', run: function () { order.when = ''; order.time = ''; order.date = null; order.soon = false; nextStep(); } });
+      c.push({ label: '🔥 Pasar al próximo sábado', run: function () { var s = nextSaturday(); setWhen({ date: s, time: '', label: fmtDate(s), soon: false }); showSummary(); } });
+      c.push({ label: '💬 Consultar por WhatsApp', run: function () {
+        window.open(waLink('Hola, quisiera consultar sobre un pedido de empanadas 🥟'), '_blank', 'noopener');
+        say(['Abrí WhatsApp en otra pestaña 💬 Aquí sigo por si quieres ajustar algo.'], fixChips());
+      } });
+      c.push({ label: '✖ Cancelar', run: cancelOrder });
+      return c;
+    }
+    say([L(blocked ? 'Casi listo 🥷 pero hay un detalle por ajustar 👇' : 'Así quedó tu pedido 👇'), function () {
       var t = totals(), card = el('div', 'pnb-cart'); card.appendChild(el('div', 'pnb-cart-h', 'Resumen del pedido'));
       var ul = el('ul', 'pnb-sum');
       PRODUCTS.forEach(function (p) { var q = cart[p.id] || 0; if (q > 0) ul.appendChild(el('li', null, q + ' × ' + p.flavor.name + ' ' + LINES[p.line].short + ' — ' + money(q * p.price))); });
@@ -3085,19 +3266,30 @@
       card.appendChild(el('div', 'pnb-kv', '📅 ' + whenLabel()));
       card.appendChild(el('div', 'pnb-kv', '🚚 ' + deliveryText()));
       if (order.note) card.appendChild(el('div', 'pnb-kv', '📝 ' + order.note));
-      var a = el('a', 'pnb-btn pnb-wa', '📲 Enviar pedido por WhatsApp'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
-      a.addEventListener('click', function () {
-        setTimeout(function () { say(['¡Misión enviada! 🥷🔥 En WhatsApp solo pulsa <b>enviar</b> y el equipo te confirma.'], CHIPS.after); }, 500);
-      });
-      card.appendChild(a);
+      rl.block.forEach(function (m) { var w = el('div', 'pnb-warn'); w.innerHTML = '⚠️ ' + m; card.appendChild(w); });
+      rl.info.forEach(function (m) { var k = el('div', 'pnb-kv'); k.innerHTML = m; card.appendChild(k); });
+      if (!blocked) {
+        var y = el('div', 'pnb-yape'); y.innerHTML = '💳 <b>Pago por Yape</b> (anticipado): al enviar tu pedido por WhatsApp te confirmamos monto y número.'; card.appendChild(y);
+        var fl = el('ul', 'pnb-flow');
+        ['Envías el pedido por <b>WhatsApp</b>', 'El equipo confirma <b>disponibilidad</b>', 'Pagas por <b>Yape</b> (pago anticipado)', '¡Horneamos y recibes tus empanadas <b>calientitas</b>! 🔥'].forEach(function (s, i) {
+          var li = el('li'); li.innerHTML = '<b class=\"n\">' + (i + 1) + '</b><span>' + s + '</span>'; fl.appendChild(li);
+        });
+        card.appendChild(fl);
+        var a = el('a', 'pnb-btn pnb-wa', '📲 Enviar pedido por WhatsApp'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
+        a.addEventListener('click', function () {
+          setTimeout(function () { say(['¡Misión enviada! 🥷🔥 En WhatsApp solo pulsa <b>enviar</b>. El equipo te confirma y te pasa el número de Yape.'], CHIPS.after); }, 500);
+        });
+        card.appendChild(a);
+      }
       return card;
-    }, tail],
-    [{ label: '✏️ Productos', run: function () { mode = 'cart'; say(['Ajusta tus empanadas 👇', cartWidget], []); } },
-     { label: '✏️ Nombre', run: function () { order.name = ''; nextStep(); } },
-     { label: '✏️ Fecha', run: function () { order.when = ''; order.time = ''; order.soon = false; nextStep(); } },
-     { label: '✏️ Entrega', run: function () { order.delivery = ''; order.address = ''; nextStep(); } },
-     { label: '📝 Nota', run: askNote },
-     { label: '✖ Cancelar', run: cancelOrder }]);
+    }].concat(blocked ? [] : ['Tu pedido <b>se confirma cuando lo envías por WhatsApp</b>: ahí el equipo valida disponibilidad, coordina la entrega y te indica el pago por Yape.']),
+    blocked ? fixChips() : [
+      { label: '✏️ Productos', run: function () { mode = 'cart'; say(['Ajusta tus empanadas 👇', cartWidget], []); } },
+      { label: '✏️ Nombre', run: function () { order.name = ''; nextStep(); } },
+      { label: '✏️ Fecha', run: function () { order.when = ''; order.time = ''; order.date = null; order.soon = false; nextStep(); } },
+      { label: '✏️ Entrega', run: function () { order.delivery = ''; order.address = ''; nextStep(); } },
+      { label: '📝 Nota', run: askNote },
+      { label: '✖ Cancelar', run: cancelOrder }]);
   }
 
   function quote(po) {
@@ -3150,13 +3342,13 @@
 
   function handleMode(text) {
     var n = norm(text);
-    if (isSideQuestion(text)) { answerIntent(detect(text)); reask(); return; }
+    if (isSideQuestion(text)) { answerIntent(detect(text), text); reask(); return; }
     switch (mode) {
       case 'name': setName(text); nextStep(); break;
       case 'when': {
         var w = parseWhen(text, true);
-        if (w && w.date) { setWhen(w); if (w.soon) leadMsg = '⚠️ Ojo: los pedidos se toman con 3 a 4 días de anticipación; igual lo anoto y el equipo te confirma.'; nextStep(); }
-        else if (w && w.time) { order.time = w.time; say(['Anoté la hora <b>' + w.time + '</b> ✅ ¿Y para qué <b>día</b>?'], [{ label: '📅 ' + fmtDate(nextSaturday()), run: function () { setWhen({ date: nextSaturday(), time: '', label: fmtDate(nextSaturday()), soon: false }); nextStep(); } }]); }
+        if (w && w.date) { setWhen(w); afterWhen(); nextStep(); }
+        else if (w && w.time) { order.time = w.time; say(['Anoté la hora <b>' + w.time + '</b> ✅ ¿Y para qué <b>día</b>?'], [{ label: '📅 ' + fmtDate(nextSaturday()), run: function () { setWhen({ date: nextSaturday(), time: '', label: fmtDate(nextSaturday()), soon: false }); afterWhen(); nextStep(); } }]); }
         else if (/coordin|despues|luego|no se|aun no|whatsapp/.test(n)) { order.when = 'Por coordinar'; nextStep(); }
         else { order.when = text.slice(0, 100); order.soon = false; nextStep(); }
         break;
@@ -3189,7 +3381,7 @@
     var po = parseOrder(text), ex = extractExtras(text);
     if (po.items.length || po.looseQty.length === 1 || po.looseFlavors.length) { applyExtras(ex); absorb(po, text); resolvePending(); return; }
     var it = detect(text);
-    if (it && it.id !== 'pedido') { answerIntent(it); reask(); return; }
+    if (it && it.id !== 'pedido') { answerIntent(it, text); reask(); return; }
     say(['Puedes escribirme algo como <i>"10 de carne y 5 de pollo"</i> o usar los botones. Cuando termines, pulsa <b>Continuar</b> (o escribe "listo").'], []);
   }
 
@@ -3206,6 +3398,7 @@
       handleMode(text); return;
     }
     // modo libre
+    if (PRICE_Q.test(n) && /\b(las|los) de (3|5)\b/.test(n) && !po.items.length) { respond('precio'); return; }
     if (PRICE_Q.test(n) && (po.items.length || po.looseQty.length === 1)) { quote(po); return; }
     if (po.items.length) {
       if (order.active && totals().units) { applyExtras(ex); absorb(po, text); resolvePending(); }   // ya había pedido: se agrega/ajusta
@@ -3223,12 +3416,12 @@
         cart = moved; order.defaultLine = ln; leadMsg = '✅ Listo, todo en línea ' + LINES[ln].short + '.'; showSummary(); return;
       }
       if (/\b(cambiar|cambia|corregir|editar) (el )?(nombre)\b/.test(n)) { order.name = ''; nextStep(); return; }
-      if (/\b(cambiar|cambia|corregir|editar) (la )?(fecha|hora|dia)\b/.test(n)) { order.when = ''; order.time = ''; nextStep(); return; }
+      if (/\b(cambiar|cambia|corregir|editar) (la )?(fecha|hora|dia)\b/.test(n)) { order.when = ''; order.time = ''; order.date = null; nextStep(); return; }
       if (/\b(cambiar|cambia|corregir|editar) (la )?(entrega|direccion)\b/.test(n)) { order.delivery = ''; order.address = ''; nextStep(); return; }
       if (/\b(cambiar|cambia|editar|modificar) (el )?(pedido|productos|cantidad|cantidades)\b/.test(n)) { mode = 'cart'; say(['Ajusta tus empanadas 👇', cartWidget], []); return; }
     }
     var it = detect(text);
-    if (it) { answerIntent(it); return; }
+    if (it) { answerIntent(it, text); return; }
     if (lineFromText(n) && !order.active) { respond('premium'); return; }
     if (CONFIG.aiEndpoint) { setChips([]); queue = queue.then(function () { return askAI(text); }); return; }
     fallback(text);
@@ -3243,13 +3436,17 @@
 
   /* ══════════════ 9. APERTURA / CIERRE ══════════════ */
   function greet() {
+    var sat = today0().getDay() === 6;
     say(['¡Hola, guerrero/a del antojo! 🥷 Soy el <b>Sensei Ninja</b>, asistente de <b>Plan Ninja Empanada</b>.',
-         'Pregúntame lo que quieras o <b>escribe tu pedido directo</b>, por ejemplo: <i>"20 de carne clásica para el sábado"</i>. También puedes usar los botones 👇'], CHIPS.main);
+         sat ? '🔥 <b>¡Hoy es Sábado Ninja!</b> Las empanadas salen desde las <b>' + CONFIG.saturdayHour + '</b>, recién horneadas y bien calientitas.'
+             : '🔥 Nuestra próxima hornada es el <b>' + fmtDate(bakeDay()) + ' desde las ' + CONFIG.saturdayHour + '</b>, recién horneadas y bien calientitas. ¡Puedes reservar las tuyas desde ya!',
+         'Toca una opción 👇 o <b>escribe tu pedido directo</b>, por ejemplo: <i>\"20 de carne para el sábado\"</i>.'], CHIPS.main);
   }
   function open() {
     root.dataset.open = 'true'; panel.hidden = false; teaser.hidden = true;
     launcher.setAttribute('aria-expanded', 'true');
     if (!started) { started = true; greet(); }
+    $('pnb-status').textContent = statusPill();
     setTimeout(function () { input.focus({ preventScroll: true }); }, 60);
   }
   function close() {
@@ -3266,6 +3463,8 @@
   $('pnb-reset').addEventListener('click', reset);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.dataset.open === 'true') close(); });
 
+  $('pnb-status').textContent = statusPill();
+  teaser.textContent = today0().getDay() === 6 ? '¡Hoy es Sábado Ninja! 🔥 Empanadas calientitas desde las ' + CONFIG.saturdayHour : '¿Antojo de empanadas? 🥟 Reserva para el sábado ninja';
   if (!stored('pnb_teaser')) {
     setTimeout(function () {
       if (root.dataset.open === 'true') return;
@@ -3389,7 +3588,7 @@
     <label>Dirección / zona de entrega</label><input name="zona" maxlength="80">
     <label>Línea clásica · S/ 3.00 c/u</label><div class="pne-g">${g(0)}</div>
     <label>Línea premium · S/ 5.00 c/u</label><div class="pne-g">${g(3)}</div>
-    <label>Fecha deseada (pedidos con 3 a 4 días de anticipación)</label><input type="date" name="fecha">
+    <label>Fecha deseada (sábados, o lun–vie desde 25 empanadas con 2 días de anticipación)</label><input type="date" name="fecha">
     <label>Nota</label><input name="nota" maxlength="120">
     <input name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px">
     <p id="pne-tot">Total: S/ 0.00</p>
