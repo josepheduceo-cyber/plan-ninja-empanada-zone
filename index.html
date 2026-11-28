@@ -1904,11 +1904,17 @@
   if(reduce) return;
 
   /* Calidad: YouTube elige la resolucion segun el tamano del reproductor, asi que lo creamos grande
-     (1440p en PC, 720p en celular, 480p con ahorro de datos) y lo reducimos con CSS para cubrir la portada. */
+     (4K en pantallas grandes, 1440p en laptops, 1080p en celular, 720p/480p con conexion lenta o ahorro de datos)
+     y lo reducimos con CSS para cubrir la portada. */
   var conn=navigator.connection||{};
   var slow=conn.saveData||/(^|-)2g|3g/.test(conn.effectiveType||'');
   var small=window.innerWidth<900;
-  var BASE = conn.saveData ? {w:854,h:480,q:'large'} : (slow||small) ? {w:1280,h:720,q:'hd720'} : {w:2560,h:1440,q:'hd1440'};
+  var big=window.innerWidth>=1500;
+  var BASE = conn.saveData ? {w:854,h:480,q:'large'}
+           : slow          ? {w:1280,h:720,q:'hd720'}
+           : small         ? {w:1920,h:1080,q:'hd1080'}      /* celular */
+           : big           ? {w:3840,h:2160,q:'hd2160'}      /* PC / pantalla grande: 4K */
+           :                 {w:2560,h:1440,q:'hd1440'};     /* laptop o pantalla mediana */
   function fit(){
     var f=box.querySelector('iframe'); if(!f) return;
     var W=box.clientWidth, H=box.clientHeight;
@@ -1941,6 +1947,7 @@
           ready=true; fit();
           try{ e.target.mute(); }catch(x){} setQuality(e.target);
           if(visible) e.target.playVideo();
+          startLoopWatch();
         },
         onStateChange:function(e){
           if(e.data===YT.PlayerState.PLAYING){
@@ -1975,6 +1982,19 @@
   function setVisible(v){ visible=v; if(!ready) return; try{ v ? player.playVideo() : player.pauseVideo(); }catch(x){} }
   if('IntersectionObserver' in window) new IntersectionObserver(function(e){ setVisible(e[0].isIntersecting && !document.hidden); },{threshold:0.05}).observe(hero);
   document.addEventListener('visibilitychange', function(){ setVisible(!document.hidden); });
+
+  /* si el navegador bloqueo el autoplay, el primer toque/scroll lo arranca */
+  ['touchstart','click','scroll','keydown'].forEach(function(ev){
+    window.addEventListener(ev,function(){ if(ready&&visible&&player){ try{ var st=player.getPlayerState(); if(st!==1&&st!==3) player.playVideo(); }catch(x){} } },{once:true,passive:true});
+  });
+
+  /* verificacion: abre la pagina con ?calidad al final de la URL para ver la resolucion real que entrega YouTube */
+  if(/[?&]calidad/.test(location.search)){
+    var dbg=document.createElement('div');
+    dbg.style.cssText='position:fixed;right:12px;top:80px;z-index:9991;padding:.4rem .7rem;border-radius:10px;background:rgba(0,0,0,.8);border:1px solid #F8C471;color:#F8C471;font:700 12px/1.3 monospace;pointer-events:none';
+    document.body.appendChild(dbg);
+    setInterval(function(){ try{ dbg.textContent='Pedida: '+BASE.q+' | Entrega YouTube: '+player.getPlaybackQuality()+' | '+(player.getPlayerState()===1?'reproduciendo':'estado '+player.getPlayerState()); }catch(x){ dbg.textContent='cargando…'; } },1000);
+  }
 
   /* aviso solo en vista local: YouTube no reproduce videos incrustados en paginas abiertas desde el disco (file://) */
   if(location.protocol==='file:'){
