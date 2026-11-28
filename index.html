@@ -1895,34 +1895,28 @@
 </section>
 
 <script>
-/* Video de fondo del hero desde YouTube (10 s, en bucle, sin sonido). Se carga al terminar la pagina para que sea mas ligera. */
+/* Video de fondo del hero desde YouTube: 10 s, en bucle, sin sonido y BLOQUEADO en 720p (720p60 si el video tiene 60 fps).
+   Se carga al terminar la pagina para que sea mas ligera. */
 (function(){
   var VID='qsCn2bj21OQ', box=document.getElementById('hero-bg-video'), hero=document.getElementById('inicio');
   if(!box||!hero) return;
-  var player=null, ready=false, visible=true, loopTimer=0;
+  var player=null, ready=false, visible=true, loopTimer=0, nudge=0, attempts=0, lastAssert=0;
   var reduce=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
 
-  /* Calidad: YouTube elige la resolucion segun el tamano del reproductor, asi que lo creamos grande
-     (4K en pantallas grandes, 1440p en laptops, 1080p en celular, 720p/480p con conexion lenta o ahorro de datos)
-     y lo reducimos con CSS para cubrir la portada. */
-  var conn=navigator.connection||{};
-  var slow=conn.saveData||/(^|-)2g|3g/.test(conn.effectiveType||'');
-  var small=window.innerWidth<900;
-  /* Escalera de calidad: arranca rapido en 720p y sube sola a 1080p, 1440p y finalmente 4K mientras el visitante sigue en la pagina. */
-  var LADDER=[{w:1280,h:720,q:'hd720'},{w:1920,h:1080,q:'hd1080'},{w:2560,h:1440,q:'hd1440'},{w:3840,h:2160,q:'hd2160'}];
-  var RANK={tiny:0,small:1,medium:2,large:3,hd720:4,hd1080:5,hd1440:6,hd2160:7,hd2880:8,highres:9};
-  var SAVE=!!conn.saveData;                                   /* ahorro de datos activado por el usuario: se respeta (480p) */
-  var BASE=SAVE ? {w:854,h:480,q:'large'} : LADDER[0], nudge=0, rampStarted=false, attempts=0, lastAssert=0;
+  /* Calidad fija en TODOS los dispositivos: reproductor de 1280x720 (YouTube elige 720p), se pide hd720
+     y el vigilante corrige cualquier cambio (hacia arriba o hacia abajo). */
+  var BASE={w:1280,h:720,q:'hd720'};
+
   function fit(){
     var f=box.querySelector('iframe'); if(!f) return;
     var W=box.clientWidth, H=box.clientHeight;
     f.style.width=(BASE.w+nudge)+'px'; f.style.height=BASE.h+'px';
-    var sc=Math.max(W/BASE.w, H/BASE.h)*1.08;        /* cubre todo + leve zoom que oculta bordes de YouTube */
+    var sc=Math.max(W/BASE.w, H/BASE.h)*1.08;        /* cubre toda la portada + leve zoom que oculta bordes de YouTube */
     f.style.transform='translate(-50%, -50%) scale('+sc+')';
   }
   function setQuality(pl){
-    try{ if(pl.setPlaybackQualityRange) pl.setPlaybackQualityRange(BASE.q,BASE.q); }catch(x){}
+    try{ if(pl.setPlaybackQualityRange) pl.setPlaybackQualityRange(BASE.q,BASE.q); }catch(x){}   /* minimo = maximo = 720p */
     try{ pl.setPlaybackQuality(BASE.q); }catch(x){}
   }
   window.addEventListener('resize', fit);
@@ -1936,7 +1930,7 @@
   }
 
   function init(){
-    var vars={ autoplay:1, mute:1, controls:0, loop:1, playlist:VID, playsinline:1, rel:0, modestbranding:1,
+    var vars={ autoplay:0, mute:1, controls:0, loop:1, playlist:VID, playsinline:1, rel:0, modestbranding:1,
                disablekb:1, fs:0, iv_load_policy:3, cc_load_policy:0, enablejsapi:1, vq:BASE.q };
     if(/^https?:/.test(location.protocol)) vars.origin=location.origin;
     player=new YT.Player('hero-yt',{
@@ -1944,54 +1938,50 @@
       events:{
         onReady:function(e){
           ready=true; fit();
-          try{ e.target.mute(); }catch(x){} setQuality(e.target);
-          if(visible) e.target.playVideo();
-          startLoopWatch();
+          try{ e.target.mute(); }catch(x){}
+          setQuality(e.target);
+          /* arranca directamente en 720p (suggestedQuality) en lugar de dejar que YouTube empiece en baja calidad */
+          try{ e.target.loadVideoById({videoId:VID, startSeconds:0, suggestedQuality:BASE.q}); }catch(x){ e.target.playVideo(); }
+          if(!visible){ try{ e.target.pauseVideo(); }catch(x){} }
+          startWatch();
         },
         onStateChange:function(e){
           if(e.data===YT.PlayerState.PLAYING){
             box.classList.add('is-active');
             setQuality(e.target);
-            startRamp();
-            startLoopWatch();
           }
           /* bucle: al terminar los 10 s vuelve a empezar */
           if(e.data===YT.PlayerState.ENDED){ e.target.seekTo(0,true); e.target.playVideo(); }
           /* si se pausa solo estando visible, lo reactiva */
           if(e.data===YT.PlayerState.PAUSED && visible && !document.hidden){ e.target.playVideo(); }
         },
-        onPlaybackQualityChange:function(){ setTimeout(enforce,700); },
+        onPlaybackQualityChange:function(){ setTimeout(enforce,300); },
         onError:function(){ box.classList.remove('is-active'); }   /* queda la imagen de portada */
       }
     });
   }
 
-  /* sube de calidad poco a poco: 720p -> 1080p -> 1440p -> 4K (cambia el tamano del reproductor y pide la calidad) */
-  function rampTo(i){ BASE=LADDER[i]; fit(); if(player) setQuality(player); }
-  function startRamp(){
-    if(rampStarted||SAVE) return; rampStarted=true;
-    [2500,6000,10000].forEach(function(ms,k){ setTimeout(function(){ rampTo(k+1); },ms); });
-  }
-  /* mantiene la calidad: si YouTube la baja, la vuelve a pedir (y si insiste, empuja el tamano 2 px para que reevalue) */
+  /* mantiene 720p: si YouTube cambia la calidad (arriba o abajo) la vuelve a pedir; si insiste, mueve el tamano 2 px para que reevalue */
   function enforce(){
     if(!player||!ready||!visible||document.hidden) return;
     var cur; try{ cur=player.getPlaybackQuality(); }catch(x){ return; }
-    if(RANK[cur]===undefined || RANK[cur]>=RANK[BASE.q]) return;
-    var now=Date.now(); if(now-lastAssert<2500) return; lastAssert=now;
+    if(!cur || cur==='unknown' || cur===BASE.q) { attempts=0; return; }
+    var now=Date.now(); if(now-lastAssert<1200) return; lastAssert=now;
     setQuality(player);
     if(++attempts%3===0){ nudge=nudge?0:2; fit(); }
   }
-  setInterval(enforce,2000);
 
-  /* respaldo del bucle: reinicia justo antes del final para evitar el corte/pantalla negra de YouTube */
-  function startLoopWatch(){
+  /* vigilante: bucle sin cortes, reactivacion si se detiene y control de calidad */
+  function startWatch(){
     if(loopTimer) return;
+    var tick=0;
     loopTimer=setInterval(function(){
       if(!player||!ready||!visible||document.hidden) return;
       try{
-        var d=player.getDuration(), t=player.getCurrentTime();
+        var d=player.getDuration(), t=player.getCurrentTime(), st=player.getPlayerState();
         if(d>0 && t>=d-0.35) player.seekTo(0,true);
-        if(player.getPlayerState()!==YT.PlayerState.PLAYING && player.getPlayerState()!==YT.PlayerState.BUFFERING) player.playVideo();
+        if(st!==YT.PlayerState.PLAYING && st!==YT.PlayerState.BUFFERING) player.playVideo();
+        if(++tick%6===0) enforce();           /* cada ~1,5 s */
       }catch(x){}
     },250);
   }
