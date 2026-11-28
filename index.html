@@ -158,18 +158,13 @@
 
   /* ===== VIDEO DE FONDO DEL HERO (portada arranque, 10 s en loop) ===== */
   .hero-bg-video {
-    position: absolute; inset: 0; overflow: hidden;
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center center;
     z-index: 0; pointer-events: none;
-    background: #080611 url(https://i.ytimg.com/vi/qsCn2bj21OQ/maxresdefault.jpg) center / cover no-repeat;
-    background-image: url(https://i.ytimg.com/vi/qsCn2bj21OQ/maxresdefault.jpg), url(https://i.ytimg.com/vi/qsCn2bj21OQ/hqdefault.jpg);
+    opacity: 0; transition: opacity .9s ease;
+    background: #080611;
   }
-  .hero-bg-video iframe {
-    position: absolute; top: 50%; left: 50%; border: 0;
-    transform: translate(-50%, -50%) scale(1.08);   /* el tamano exacto lo ajusta el script */
-    transform-origin: center center;
-    opacity: 0; transition: opacity .9s ease; pointer-events: none;
-  }
-  .hero-bg-video.is-active iframe { opacity: 1; }
+  .hero-bg-video.is-active { opacity: 1; }
   .hero-bg-shade {
     position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background:
@@ -1861,7 +1856,9 @@
 
 <!-- HERO -->
 <section id="inicio" class="hero">
-  <div class="hero-bg-video" id="hero-bg-video" aria-hidden="true"><div id="hero-yt"></div></div>
+  <video class="hero-bg-video" id="hero-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1" disablepictureinpicture>
+    <source src="assets/Video.Portada.Arranque.mp4" type="video/mp4">
+  </video>
   <div class="hero-bg-shade" aria-hidden="true"></div>
   <div class="hero-bg-pattern"></div>
   <div class="hero-glow"></div>
@@ -1895,128 +1892,40 @@
 </section>
 
 <script>
-/* Video de fondo del hero desde YouTube: 10 s, en bucle, sin sonido y BLOQUEADO en 720p (720p60 si el video tiene 60 fps).
-   Se carga al terminar la pagina para que sea mas ligera. */
+/* Video de fondo del hero (archivo local): se repite siempre (loop nativo + 3 respaldos automaticos) */
 (function(){
-  var VID='qsCn2bj21OQ', box=document.getElementById('hero-bg-video'), hero=document.getElementById('inicio');
-  if(!box||!hero) return;
-  var player=null, ready=false, visible=true, loopTimer=0, nudge=0, attempts=0, lastAssert=0;
-  var reduce=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce) return;
+  var v=document.getElementById('hero-bg-video'); if(!v) return;
+  v.muted=true; v.defaultMuted=true; v.loop=true;
+  var visible=true, last=-1, stuck=0;
+  function play(){ var r=v.play(); if(r&&r.catch) r.catch(function(){}); }
+  function restart(){ try{ v.currentTime=0; }catch(e){} play(); }
 
-  /* Calidad fija en TODOS los dispositivos: reproductor de 1280x720 (YouTube elige 720p), se pide hd720
-     y el vigilante corrige cualquier cambio (hacia arriba o hacia abajo). */
-  var BASE={w:1280,h:720,q:'hd720'};
-
-  function fit(){
-    var f=box.querySelector('iframe'); if(!f) return;
-    var W=box.clientWidth, H=box.clientHeight;
-    f.style.width=(BASE.w+nudge)+'px'; f.style.height=BASE.h+'px';
-    var sc=Math.max(W/BASE.w, H/BASE.h)*1.08;        /* cubre toda la portada + leve zoom que oculta bordes de YouTube */
-    f.style.transform='translate(-50%, -50%) scale('+sc+')';
-  }
-  function setQuality(pl){
-    try{ if(pl.setPlaybackQualityRange) pl.setPlaybackQualityRange(BASE.q,BASE.q); }catch(x){}   /* minimo = maximo = 720p */
-    try{ pl.setPlaybackQuality(BASE.q); }catch(x){}
-  }
-  window.addEventListener('resize', fit);
-
-  function loadApi(){
-    if(window.YT && YT.Player) return init();
-    var t=document.createElement('script'); t.src='https://www.youtube.com/iframe_api'; t.async=true;
-    var prev=window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady=function(){ if(prev) prev(); init(); };
-    document.head.appendChild(t);
-  }
-
-  function init(){
-    var vars={ autoplay:0, mute:1, controls:0, loop:1, playlist:VID, playsinline:1, rel:0, modestbranding:1,
-               disablekb:1, fs:0, iv_load_policy:3, cc_load_policy:0, enablejsapi:1, vq:BASE.q };
-    if(/^https?:/.test(location.protocol)) vars.origin=location.origin;
-    player=new YT.Player('hero-yt',{
-      videoId:VID, width:BASE.w, height:BASE.h, host:'https://www.youtube-nocookie.com', playerVars:vars,
-      events:{
-        onReady:function(e){
-          ready=true; fit();
-          try{ e.target.mute(); }catch(x){}
-          setQuality(e.target);
-          /* arranca directamente en 720p (suggestedQuality) en lugar de dejar que YouTube empiece en baja calidad */
-          try{ e.target.loadVideoById({videoId:VID, startSeconds:0, suggestedQuality:BASE.q}); }catch(x){ e.target.playVideo(); }
-          if(!visible){ try{ e.target.pauseVideo(); }catch(x){} }
-          startWatch();
-        },
-        onStateChange:function(e){
-          if(e.data===YT.PlayerState.PLAYING){
-            box.classList.add('is-active');
-            setQuality(e.target);
-          }
-          /* bucle: al terminar los 10 s vuelve a empezar */
-          if(e.data===YT.PlayerState.ENDED){ e.target.seekTo(0,true); e.target.playVideo(); }
-          /* si se pausa solo estando visible, lo reactiva */
-          if(e.data===YT.PlayerState.PAUSED && visible && !document.hidden){ e.target.playVideo(); }
-        },
-        onPlaybackQualityChange:function(){ setTimeout(enforce,300); },
-        onError:function(){ box.classList.remove('is-active'); }   /* queda la imagen de portada */
-      }
-    });
-  }
-
-  /* mantiene 720p: si YouTube cambia la calidad (arriba o abajo) la vuelve a pedir; si insiste, mueve el tamano 2 px para que reevalue */
-  function enforce(){
-    if(!player||!ready||!visible||document.hidden) return;
-    var cur; try{ cur=player.getPlaybackQuality(); }catch(x){ return; }
-    if(!cur || cur==='unknown' || cur===BASE.q) { attempts=0; return; }
-    var now=Date.now(); if(now-lastAssert<1200) return; lastAssert=now;
-    setQuality(player);
-    if(++attempts%3===0){ nudge=nudge?0:2; fit(); }
-  }
-
-  /* vigilante: bucle sin cortes, reactivacion si se detiene y control de calidad */
-  function startWatch(){
-    if(loopTimer) return;
-    var tick=0;
-    loopTimer=setInterval(function(){
-      if(!player||!ready||!visible||document.hidden) return;
-      try{
-        var d=player.getDuration(), t=player.getCurrentTime(), st=player.getPlayerState();
-        if(d>0 && t>=d-0.35) player.seekTo(0,true);
-        if(st!==YT.PlayerState.PLAYING && st!==YT.PlayerState.BUFFERING) player.playVideo();
-        if(++tick%6===0) enforce();           /* cada ~1,5 s */
-      }catch(x){}
-    },250);
-  }
-
-  /* ahorra datos y bateria: pausa fuera de pantalla o con la pestana oculta */
-  function setVisible(v){ visible=v; if(!ready) return; try{ v ? player.playVideo() : player.pauseVideo(); }catch(x){} }
-  if('IntersectionObserver' in window) new IntersectionObserver(function(e){ setVisible(e[0].isIntersecting && !document.hidden); },{threshold:0.05}).observe(hero);
-  document.addEventListener('visibilitychange', function(){ setVisible(!document.hidden); });
-
-  /* si el navegador bloqueo el autoplay, el primer toque/scroll lo arranca */
-  ['touchstart','click','scroll','keydown'].forEach(function(ev){
-    window.addEventListener(ev,function(){ if(ready&&visible&&player){ try{ var st=player.getPlayerState(); if(st!==1&&st!==3) player.playVideo(); }catch(x){} } },{once:true,passive:true});
+  v.addEventListener('playing', function(){ v.classList.add('is-active'); });
+  v.addEventListener('canplay', function(){ if(visible && v.paused) play(); });
+  /* respaldo 1: si llega al final, vuelve a empezar */
+  v.addEventListener('ended', restart);
+  /* respaldo 2: cerca del final reinicia a mano (por si el loop nativo falla) */
+  v.addEventListener('timeupdate', function(){
+    if(v.duration && isFinite(v.duration) && v.currentTime >= v.duration-0.15) restart();
   });
+  /* respaldo 3: vigilante cada 0,5 s; si esta pausado o congelado, lo reactiva */
+  setInterval(function(){
+    if(!visible || document.hidden) { stuck=0; return; }
+    if(v.paused || v.ended){ play(); stuck=0; return; }
+    if(!v.seeking && v.readyState>=2 && v.currentTime===last){ if(++stuck>=4){ restart(); stuck=0; } }
+    else stuck=0;
+    last=v.currentTime;
+  }, 500);
 
-  /* verificacion: abre la pagina con ?calidad al final de la URL para ver la resolucion real que entrega YouTube */
-  if(/[?&]calidad/.test(location.search)){
-    var dbg=document.createElement('div');
-    dbg.style.cssText='position:fixed;right:12px;top:80px;z-index:9991;padding:.4rem .7rem;border-radius:10px;background:rgba(0,0,0,.8);border:1px solid #F8C471;color:#F8C471;font:700 12px/1.3 monospace;pointer-events:none';
-    document.body.appendChild(dbg);
-    setInterval(function(){ try{ dbg.textContent='Pedida: '+BASE.q+' | Entrega YouTube: '+player.getPlaybackQuality()+' | '+(player.getPlayerState()===1?'reproduciendo':'estado '+player.getPlayerState()); }catch(x){ dbg.textContent='cargando…'; } },1000);
+  if(v.readyState>=2) play(); else v.addEventListener('loadeddata', play, {once:true});
+
+  /* ahorra bateria y datos: pausa fuera de pantalla o con la pestana oculta */
+  var hero=document.getElementById('inicio');
+  if('IntersectionObserver' in window && hero){
+    new IntersectionObserver(function(e){ visible=e[0].isIntersecting; if(visible) play(); else v.pause(); },{threshold:0.05}).observe(hero);
   }
-
-  /* aviso solo en vista local: YouTube no reproduce videos incrustados en paginas abiertas desde el disco (file://) */
-  if(location.protocol==='file:'){
-    console.warn('Video de YouTube: abre la pagina con Live Server o publicala (https) para verlo.');
-    var n=document.createElement('div');
-    n.style.cssText='position:fixed;left:12px;bottom:12px;z-index:9990;max-width:340px;padding:.6rem .8rem;border-radius:12px;background:rgba(20,16,36,.95);border:1px solid #F39C12;color:#fff;font:600 13px/1.35 Nunito,system-ui,sans-serif;cursor:pointer';
-    n.innerHTML='ℹ️ <b>Vista local:</b> el video de YouTube solo se reproduce con la web publicada o con Live Server. <u>Cerrar</u>';
-    n.onclick=function(){ n.remove(); };
-    document.body.appendChild(n);
-  }
-
-  /* carga diferida: despues de que la pagina termine de cargar */
-  if(document.readyState==='complete') setTimeout(loadApi,300);
-  else window.addEventListener('load', function(){ setTimeout(loadApi,300); });
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) v.pause(); else if(visible) play(); });
+  ['touchstart','click','keydown'].forEach(function(ev){ document.addEventListener(ev, function(){ if(v.paused && visible) play(); },{once:true,passive:true}); });
 })();
 </script>
 
