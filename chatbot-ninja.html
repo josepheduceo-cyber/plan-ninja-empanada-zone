@@ -9,23 +9,21 @@
 
   /* Botón flotante */
   .pnb-launcher {
-    position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    width: 62px; height: 62px; border-radius: 50%; border: 2px solid rgba(248,196,113,.85);
-    background: linear-gradient(135deg, #5B21B6, #D946EF); color: #fff; font-size: 1.9rem;
-    display: grid; place-items: center; cursor: pointer; z-index: 9998;
-    box-shadow: 0 0 0 0 rgba(217,70,239,.6), 0 8px 26px rgba(0,0,0,.45);
-    animation: pnbPulse 2.6s ease-out infinite; transition: transform .2s;
+    position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: 58px; height: auto; padding: 0; margin: 0; border: 0; border-radius: 0; background: none;
+    box-shadow: none; color: #fff; font-size: 1.9rem; line-height: 1;
+    display: block; cursor: pointer; z-index: 9998;
+    animation: pnbFloat 3s ease-in-out infinite; transition: transform .2s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .pnb-launcher:hover { transform: scale(1.08) rotate(-6deg); }
+  .pnb-img { display: block; width: 100%; height: auto; object-fit: contain; border-radius: 0;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(217,70,239,.35)); }
+  @keyframes pnbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .pnb-launcher:hover { animation: none; transform: scale(1.08) rotate(-4deg); }
   .pnb-launcher:focus-visible, .pnb button:focus-visible, .pnb input:focus-visible { outline: 3px solid #F8C471; outline-offset: 2px; }
   .pnb[data-open="true"] .pnb-launcher { animation: none; }
-  @keyframes pnbPulse {
-    0% { box-shadow: 0 0 0 0 rgba(217,70,239,.55), 0 8px 26px rgba(0,0,0,.45); }
-    70% { box-shadow: 0 0 0 18px rgba(217,70,239,0), 0 8px 26px rgba(0,0,0,.45); }
-    100% { box-shadow: 0 0 0 0 rgba(217,70,239,0), 0 8px 26px rgba(0,0,0,.45); }
-  }
   .pnb-teaser {
-    position: fixed; right: 90px; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); z-index: 9998;
+    position: fixed; right: 82px; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); z-index: 9998;
     max-width: 220px; padding: .6rem .9rem; border-radius: 14px 14px 4px 14px;
     background: #fff; color: #1A1A1A; font-weight: 700; font-size: .88rem; line-height: 1.3;
     box-shadow: 0 8px 24px rgba(0,0,0,.3); animation: pnbIn .35s ease; cursor: pointer;
@@ -34,9 +32,9 @@
 
   /* Ventana */
   .pnb-panel {
-    position: fixed; right: 18px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 9999;
-    width: 372px; height: min(620px, calc(100vh - 120px)); height: min(620px, calc(100dvh - 120px));
-    display: flex; flex-direction: column; overflow: hidden; border-radius: 20px;
+    position: fixed; right: 14px; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); z-index: 9999;
+    width: 372px; height: min(620px, calc(100vh - 220px)); height: min(620px, calc(100dvh - 220px));
+    display: flex; flex-direction: column; overflow: visible; border-radius: 20px;
     background: #0d0a1a; border: 1px solid rgba(217,70,239,.45);
     box-shadow: 0 0 40px rgba(217,70,239,.25), 0 20px 60px rgba(0,0,0,.6);
     animation: pnbIn .28s ease;
@@ -44,10 +42,12 @@
   @keyframes pnbIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
 
   .pnb-head {
-    display: flex; align-items: center; gap: .7rem; padding: .85rem 1rem;
+    position: relative; display: flex; align-items: center; gap: .7rem; padding: .85rem 1rem .85rem 96px; min-height: 68px;
     background: linear-gradient(135deg, #2a0f5c, #6b21a8 60%, #a21caf); border-bottom: 1px solid rgba(248,196,113,.35);
+    border-radius: 20px 20px 0 0;
   }
-  .pnb-avatar { width: 40px; height: 40px; border-radius: 50%; background: #080611; display: grid; place-items: center; font-size: 1.4rem; border: 2px solid #F8C471; flex: none; }
+  .pnb-avatar { position: absolute; left: 12px; bottom: 0; width: 70px; height: auto; background: none; border: 0; border-radius: 0; padding: 0; font-size: 1.4rem; pointer-events: none; z-index: 2; }
+  .pnb-avatar .pnb-img { filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
   .pnb-title { flex: 1; min-width: 0; line-height: 1.15; }
   .pnb-title strong { display: block; font-family: 'Bangers', cursive, sans-serif; letter-spacing: 1.5px; font-size: 1.25rem; color: #F8C471; font-weight: 400; }
   .pnb-title small { font-size: .72rem; opacity: .85; }
@@ -69,12 +69,12 @@
   .pnb-typing i:nth-child(2) { animation-delay: .15s; } .pnb-typing i:nth-child(3) { animation-delay: .3s; }
   @keyframes pnbDot { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-5px); opacity: 1; } }
 
-  .pnb-chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: .35rem .9rem .6rem; max-height: 112px; overflow-y: auto; }
+  .pnb-chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: .35rem .9rem .6rem; max-height: 132px; overflow-y: auto; }
   .pnb-chips:empty { display: none; }
   .pnb-chip { background: transparent; color: #F8C471; border: 1px solid rgba(248,196,113,.6); border-radius: 50px; padding: .38rem .8rem; font: 700 .8rem 'Nunito', sans-serif; cursor: pointer; transition: all .15s; }
   .pnb-chip:hover { background: #F8C471; color: #1A1A1A; }
 
-  .pnb-form { display: flex; gap: .5rem; padding: .7rem .8rem calc(.7rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(139,92,246,.3); background: #080611; }
+  .pnb-form { display: flex; gap: .5rem; padding: .7rem .8rem calc(.7rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(139,92,246,.3); background: #080611; border-radius: 0 0 20px 20px; }
   .pnb-form input { flex: 1; min-width: 0; padding: .65rem .9rem; border-radius: 50px; border: 1px solid rgba(139,92,246,.5); background: rgba(255,255,255,.07); color: #fff; font: 600 16px 'Nunito', sans-serif; }
   .pnb-form input::placeholder { color: rgba(255,255,255,.5); }
   .pnb-form button { width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer; background: linear-gradient(135deg, #5B21B6, #D946EF); color: #fff; font-size: 1.1rem; flex: none; }
@@ -89,35 +89,59 @@
   .pnb-ctl { display: flex; align-items: center; gap: .45rem; }
   .pnb-step { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #D946EF; background: transparent; color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; }
   .pnb-step:hover { background: #D946EF; }
-  .pnb-qty { min-width: 1.4rem; text-align: center; font-weight: 900; }
+  .pnb-seg { display: flex; gap: .35rem; margin-bottom: .45rem; }
+  .pnb-segbtn { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: .45rem .3rem; border-radius: 50px; border: 1px solid rgba(248,196,113,.5); background: transparent; color: #F8C471; font: 800 .78rem 'Nunito', sans-serif; cursor: pointer; transition: all .15s; }
+  .pnb-segbtn[aria-pressed="true"] { background: linear-gradient(135deg, #F39C12, #F8C471); color: #1A1A1A; border-color: transparent; }
+  .pnb-qtyin { width: 54px; padding: .3rem 0; text-align: center; border-radius: 10px; border: 1px solid rgba(139,92,246,.55); background: rgba(255,255,255,.08); color: #fff; font: 800 16px 'Nunito', sans-serif; -moz-appearance: textfield; appearance: textfield; }
+  .pnb-qtyin::-webkit-outer-spin-button, .pnb-qtyin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .pnb-kv { font-size: .88rem; margin-top: .3rem; overflow-wrap: anywhere; }
   .pnb-total { display: flex; justify-content: space-between; margin-top: .6rem; padding-top: .55rem; border-top: 1px dashed rgba(255,255,255,.3); font-weight: 900; }
   .pnb-btn { display: block; width: 100%; margin-top: .6rem; padding: .65rem; border: 0; border-radius: 50px; text-align: center; text-decoration: none; cursor: pointer; font: 900 .9rem 'Nunito', sans-serif; background: linear-gradient(135deg, #F39C12, #F8C471); color: #1A1A1A !important; }
   .pnb-btn.pnb-wa { background: #25D366; color: #fff !important; }
   .pnb-sum { margin: .4rem 0 0; padding-left: 1.1rem; }
 
+
+  .pnb-status { display: block; width: max-content; max-width: 100%; margin-top: .3rem; padding: .12rem .55rem; border-radius: 50px; background: rgba(248,196,113,.18); border: 1px solid rgba(248,196,113,.5); color: #F8C471; font-size: .66rem; font-weight: 800; line-height: 1.3; }
+  .pnb-hint { font-size: .78rem; opacity: .85; margin: 0 0 .4rem; line-height: 1.3; }
+  .pnb-warn { margin-top: .55rem; padding: .55rem .7rem; border-radius: 12px; background: rgba(239,68,68,.14); border: 1px solid rgba(239,68,68,.6); font-size: .86rem; line-height: 1.4; }
+  .pnb-yape { margin-top: .6rem; padding: .55rem .7rem; border-radius: 12px; background: rgba(139,92,246,.18); border: 1px solid rgba(139,92,246,.55); font-size: .85rem; line-height: 1.4; }
+  .pnb-flow { list-style: none; margin: .5rem 0 0; padding: 0; }
+  .pnb-flow li { display: flex; gap: .55rem; align-items: flex-start; padding: .2rem 0; font-size: .84rem; line-height: 1.3; }
+  .pnb-flow li .n { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #F39C12, #F8C471); color: #1A1A1A; font-size: .75rem; }
+
+  @media (min-width: 481px) {
+    .pnb-launcher { width: 92px; right: 18px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+    .pnb-panel { right: 18px; bottom: calc(168px + env(safe-area-inset-bottom, 0px)); height: min(620px, calc(100vh - 280px)); height: min(620px, calc(100dvh - 280px)); }
+    .pnb-teaser { right: 120px; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+    .pnb-head { padding-left: 108px; min-height: 72px; }
+    .pnb-avatar { width: 82px; left: 14px; }
+  }
   @media (max-width: 480px) {
     .pnb-panel { right: 0; left: 0; bottom: 0; width: 100%; height: 88vh; height: 88dvh; border-radius: 20px 20px 0 0; }
     .pnb[data-open="true"] .pnb-launcher { display: none; }
-    .pnb-teaser { right: 84px; max-width: 180px; }
+    .pnb-teaser { right: 78px; max-width: 180px; }
+    .pnb-form { border-radius: 0; }
+    .pnb-head { padding-left: 88px; }
+    .pnb-avatar { width: 62px; }
   }
   @media (prefers-reduced-motion: reduce) { .pnb *, .pnb-launcher, .pnb-panel, .pnb-teaser { animation: none !important; scroll-behavior: auto !important; } }
 </style>
 
 <div class="pnb" id="pnb" data-open="false">
-  <button class="pnb-launcher" id="pnb-launcher" type="button" aria-label="Abrir chat con el Sensei Ninja" aria-expanded="false" aria-controls="pnb-panel">🥷</button>
+  <button class="pnb-launcher" id="pnb-launcher" type="button" aria-label="Abrir chat con el Sensei Ninja" aria-expanded="false" aria-controls="pnb-panel"><img class="pnb-img" src="assets/chatbot/chat.empanada.png" alt="" onerror="this.replaceWith(document.createTextNode('🥷'))"></button>
   <div class="pnb-teaser" id="pnb-teaser" hidden>¿Antojo de empanadas? 🥟 ¡Pregúntale al Sensei!</div>
 
   <section class="pnb-panel" id="pnb-panel" role="dialog" aria-label="Chat de Plan Ninja Empanada" hidden>
     <header class="pnb-head">
-      <div class="pnb-avatar" aria-hidden="true">🥷</div>
-      <div class="pnb-title"><strong>Sensei Ninja</strong><small>Asistente de Plan Ninja Empanada</small></div>
+      <div class="pnb-avatar" aria-hidden="true"><img class="pnb-img" src="assets/chatbot/chat.empanada.png" alt="" onerror="this.replaceWith(document.createTextNode('🥷'))"></div>
+      <div class="pnb-title"><strong>Sensei Ninja</strong><small>Asistente de Plan Ninja Empanada</small><span class="pnb-status" id="pnb-status"></span></div>
       <button type="button" id="pnb-reset" title="Reiniciar chat" aria-label="Reiniciar chat">↺</button>
       <button type="button" id="pnb-close" aria-label="Cerrar chat">✕</button>
     </header>
     <div class="pnb-log" id="pnb-log" role="log" aria-live="polite"></div>
     <div class="pnb-chips" id="pnb-chips"></div>
     <form class="pnb-form" id="pnb-form" autocomplete="off">
-      <input id="pnb-input" type="text" maxlength="300" placeholder="Escribe tu pregunta…" aria-label="Escribe tu mensaje">
+      <input id="pnb-input" type="text" maxlength="300" placeholder="Ej.: 20 de carne para el sábado…" aria-label="Escribe tu mensaje">
       <button type="submit" aria-label="Enviar mensaje">➤</button>
     </form>
   </section>
@@ -132,19 +156,22 @@
     whatsapp: '51996989580',                       // número principal, sin + ni espacios
     phones: ['+51 996 989 580', '+51 984 757 668', '+51 961 711 421'],
     address: 'Urb. Los Licenciados, Pasaje Loa H-7, Cusco, Perú',
-    schedule: 'Todos los sábados y pedidos con anticipación de 3 a 4 días · 9:00 AM – 5:00 PM',
-    delivery: 'Atendemos a toda la ciudad del Cusco, previa coordinación.',
+    schedule: 'Sábados desde las 8:00 a.m. · Pedidos de lunes a viernes desde 25 empanadas, con 2 días de anticipación',
+    delivery: 'Atendemos a toda la ciudad del Cusco, previa coordinación por WhatsApp.',
     facebook: 'https://www.facebook.com/empanadascusco/',
     instagram: 'https://www.instagram.com/planninjaempanadacusco/',
     appUrl: 'https://josepheduceo-cyber.github.io/plan-ninja-empanada/',
-    premiumNote: 'Mismos sabores y descripciones que la Clásica, con su propia identidad visual Edición Dorada.',
+    premiumNote: 'Mismos sabores que la Clásica, con molde más grande y su propia identidad visual Edición Dorada.',
+    minAdvanceDays: 2,                             // anticipación mínima (días)
+    weekdayMin: 25,                                // mínimo de empanadas de lunes a viernes (eventos)
+    saturdayHour: '8:00 a.m.',                     // hora de salida de la hornada del sábado
     teaserDelayMs: 6000,
     aiEndpoint: ''     // OPCIONAL: URL de TU backend/proxy con IA. Nunca pongas API keys aquí.
   };
 
   var LINES = {
-    clasica: { label: 'Línea Clásica', price: 3 },
-    premium: { label: 'Línea Premium · Edición Dorada', price: 5 }
+    clasica: { label: 'Línea Clásica', short: 'Clásica', emoji: '🔥', price: 3 },
+    premium: { label: 'Línea Premium · Edición Dorada', short: 'Premium', emoji: '👑', price: 5 }
   };
 
   var FLAVORS = [
@@ -170,6 +197,24 @@
   function scrollDown() { log.scrollTop = log.scrollHeight; }
   function store(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
   function stored(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function lev(a, b) {                       // distancia de edición (tolera 1 error de tipeo)
+    if (Math.abs(a.length - b.length) > 1) return 2;
+    var prev = [], i, j, cur;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur = [i];
+      for (j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  function flavorById(id) { return FLAVORS.filter(function (f) { return f.id === id; })[0]; }
+  function tidyName(s) {
+    s = s.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+    if (s === s.toLowerCase() || s === s.toUpperCase()) s = s.toLowerCase().replace(/(^|\s)([a-záéíóúüñ])/g, function (m, a, b) { return a + b.toUpperCase(); });
+    return s;
+  }
 
   var PRODUCTS = [];
   Object.keys(LINES).forEach(function (lineId) {
@@ -180,11 +225,22 @@
   });
 
   /* ══════════════ 3. ESTADO ══════════════ */
-  var mode = null;          // null | 'cart' | 'name' | 'when'
-  var cart = {};            // { 'carne-clasica': 2, ... }
-  var order = { name: '', when: '' };
+  var mode = null;   // null | cart | line | flavor | qty | name | when | delivery | address | note
+  var cart = {};     // { 'carne-clasica': 2, ... }
+  var order = newOrder();
+  var pend = { lines: [], qty: 0, flavors: [], ack: [] };   // datos a medio entender
+  var cartUI = null, leadMsg = '';
   var started = false, unknownCount = 0, history = [];
   var queue = Promise.resolve();
+
+  function newOrder() { return { active: false, name: '', when: '', time: '', date: null, soon: false, delivery: '', address: '', note: '', defaultLine: null }; }
+  function resetPend() { pend = { lines: [], qty: 0, flavors: [], ack: [] }; }
+  function totals() {
+    var u = 0, t = 0;
+    PRODUCTS.forEach(function (p) { var q = cart[p.id] || 0; u += q; t += q * p.price; });
+    return { units: u, total: t };
+  }
+  function L(html) { if (leadMsg) { html = leadMsg + '<br>' + html; leadMsg = ''; } return html; }
 
   /* ══════════════ 4. RENDER DE MENSAJES ══════════════ */
   function rowFor(who) { var r = el('div', 'pnb-row pnb-' + who); log.appendChild(r); return r; }
@@ -208,7 +264,7 @@
       parts.forEach(function (p) {
         chain = chain.then(function () {
           typing(true);
-          return sleep(380 + Math.min(650, (typeof p === 'string' ? p.length : 60) * 5));
+          return sleep(220 + Math.min(380, (typeof p === 'string' ? p.length : 60) * 2.5));
         }).then(function () {
           typing(false);
           if (typeof p === 'function') addBotNode(p()); else { addBotHTML(p); history.push({ role: 'assistant', content: p.replace(/<[^>]+>/g, ' ') }); }
@@ -225,9 +281,7 @@
       var b = el('button', 'pnb-chip', c.label); b.type = 'button';
       b.addEventListener('click', function () {
         addUser(c.label); setChips([]);
-        if (c.action === 'order') startOrder();
-        else if (c.action === 'skipwhen') { order.when = ''; mode = null; showSummary(); }
-        else respond(c.intent);
+        if (c.run) c.run(); else respond(c.intent);
       });
       chipsBox.appendChild(b);
     });
@@ -235,19 +289,174 @@
 
   var CHIPS = {
     main: [
-      { label: '🥟 Ver menú', intent: 'menu' }, { label: '💰 Precios', intent: 'precio' },
-      { label: '🛒 Hacer pedido', action: 'order' }, { label: '⏰ Horarios', intent: 'horario' },
-      { label: '🛵 Delivery', intent: 'delivery' }, { label: '📍 Ubicación', intent: 'ubicacion' }
+      { label: '🔥 Sábado ninja', intent: 'horario' }, { label: '🛒 Hacer pedido', run: orderChip },
+      { label: '🥟 Menú y precios', intent: 'menu' }, { label: '🎉 Eventos (25+)', intent: 'mayor' },
+      { label: '💳 Cómo pagar', intent: 'pago' }, { label: '📖 Nuestra historia', intent: 'historia' },
+      { label: '📍 Ubicación', intent: 'ubicacion' }
     ],
     after: [
-      { label: '🛒 Hacer pedido', action: 'order' }, { label: '🥟 Ver menú', intent: 'menu' },
-      { label: '📞 Contacto', intent: 'contacto' }
+      { label: '🛒 Hacer pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' },
+      { label: '🧭 Cómo funciona', intent: 'como' }, { label: '📞 Contacto', intent: 'contacto' }
     ]
   };
+  function chipsAfterAnswer() {
+    if (order.active && totals().units) return [{ label: '🧾 Seguir con mi pedido', run: resumeOrder }, { label: '🥟 Ver menú', intent: 'menu' }, { label: '📞 Contacto', intent: 'contacto' }];
+    return CHIPS.after;
+  }
 
-  /* ══════════════ 5. BASE DE CONOCIMIENTO (intenciones) ══════════════ */
+  /* ══════════════ 5. LECTURA DEL PEDIDO ESCRITO (cantidades, sabores, línea, fecha) ══════════════ */
+  var NUMW = { un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12,
+    trece: 13, catorce: 14, quince: 15, veinte: 20, veinticinco: 25, treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70, ochenta: 80, noventa: 90, cien: 100, ciento: 100 };
+  var FL_MAP = { carne: 'carne', carnes: 'carne', res: 'carne', pollo: 'pollo', pollos: 'pollo', pollito: 'pollo',
+    mixta: 'mixta', mixtas: 'mixta', mixto: 'mixta', mixtos: 'mixta', salchicha: 'mixta', salchichas: 'mixta' };
+  var LN_MAP = { premium: 'premium', premiums: 'premium', dorada: 'premium', doradas: 'premium', dorado: 'premium',
+    clasica: 'clasica', clasicas: 'clasica', clasico: 'clasica', clasicos: 'clasica', normal: 'clasica', normales: 'clasica', tradicional: 'clasica', tradicionales: 'clasica' };
+  var MON_N = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var DAYS_N = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+  var DAYS_L = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  var REPLACE_RE = /\b(mejor|cambia|cambiar|cambialo|solo|solamente|nomas|en total|en vez|mas bien|corrige|corregir)\b/;
+  var MON_RE = MON_N.join('|') + '|setiembre';
+
+  function lineFromText(n) {     // línea mencionada en el texto (por nombre o por precio)
+    var m = null;
+    if (/\bs\/ ?5\b|\b5 soles\b/.test(n)) return 'premium';
+    if (/\bs\/ ?3\b|\b3 soles\b/.test(n)) return 'clasica';
+    n.split(' ').forEach(function (t) { if (LN_MAP[t]) m = m || LN_MAP[t]; });
+    return m;
+  }
+
+  function stripNoise(n) {       // quita fechas, horas, precios y "x días/personas" para no confundirlos con cantidades
+    return n.replace(/\b\d{1,2} ?\/ ?\d{1,2}( ?\/ ?\d{2,4})?\b/g, ' ')
+      .replace(new RegExp('\\b\\d{1,2} (de )?(' + MON_RE + ')\\b', 'g'), ' ')
+      .replace(/\ba las? \d{1,2}( \d{2})?( ?(am|pm))?\b/g, ' ')
+      .replace(/\b\d{1,2}( \d{2})? ?(am|pm)\b/g, ' ')
+      .replace(/\bs\/ ?\d+( 00)?\b/g, ' ').replace(/\b\d+ soles\b/g, ' ')
+      .replace(/\b(\d+|un|una|dos|tres|cuatro|cinco|seis|siete) (dias?|horas?|personas?|semanas?)\b/g, ' ')
+      .replace(/\bel \d{1,2}\b/g, ' ');
+  }
+  function prepNums(n) {
+    n = n.replace(/\bmedias? docenas?\b/g, ' 6 ');
+    n = n.replace(/\b(\d+|[a-z]+) docenas?\b/g, function (m, a) { var v = /^\d+$/.test(a) ? +a : NUMW[a]; return v ? ' ' + (v * 12) + ' ' : m; });
+    return n.replace(/\bdocenas?\b/g, ' 12 ');
+  }
+
+  // Devuelve { items:[{flavor,qty,line}], looseQty:[], looseFlavors:[], line }
+  function parseOrder(text) {
+    var n = norm(text), priceLine = lineFromText(n);
+    n = prepNums(stripNoise(n));
+    var toks = n.split(' ').filter(Boolean).map(function (t) {
+      var m = /^x?(\d+)x?$/.exec(t); if (m) return m[1];
+      return NUMW[t] != null ? String(NUMW[t]) : t;
+    });
+    var flav = [], nums = [], lns = [];
+    toks.forEach(function (t, i) {
+      if (FL_MAP[t]) flav.push({ i: i, id: FL_MAP[t] });
+      else if (/^\d+$/.test(t)) { var v = +t; if (v >= 1 && v <= 500) nums.push({ i: i, v: v, used: false }); }
+      else if (LN_MAP[t]) lns.push({ i: i, line: LN_MAP[t] });
+    });
+    flav.forEach(function (f, fi) {
+      var prevF = flav[fi - 1] ? flav[fi - 1].i : -1, nextF = flav[fi + 1] ? flav[fi + 1].i : 1e9, best = null;
+      nums.forEach(function (nu) { var d = f.i - nu.i; if (!nu.used && d >= 1 && d <= 4 && nu.i > prevF && (!best || d < best.d)) best = { nu: nu, d: d }; });
+      if (!best) nums.forEach(function (nu) { var d = nu.i - f.i; if (!nu.used && d >= 1 && d <= 3 && nu.i < nextF && (!best || d < best.d)) best = { nu: nu, d: d }; });
+      if (best) { best.nu.used = true; f.qty = best.nu.v; }
+    });
+    var unpairedF = flav.filter(function (f) { return !f.qty; }), freeN = nums.filter(function (x) { return !x.used; });
+    if (flav.length === 1 && unpairedF.length === 1 && freeN.length === 1) { unpairedF[0].qty = freeN[0].v; freeN[0].used = true; freeN = []; unpairedF = []; }
+
+    // línea de cada sabor = la mencionada más cerca de él
+    var distinct = {}; lns.forEach(function (l) { distinct[l.line] = 1; });
+    if (priceLine) distinct[priceLine] = 1;
+    var keys = Object.keys(distinct), globalLine = keys.length === 1 ? keys[0] : null;
+    lns.forEach(function (l) {
+      var near = null, nd = 99;
+      flav.forEach(function (f) { var d = Math.abs(f.i - l.i); if (d < nd) { nd = d; near = f; } });
+      if (near && nd <= 3 && !near.line) near.line = l.line;
+    });
+
+    var items = flav.filter(function (f) { return f.qty; }).map(function (f) { return { flavor: f.id, qty: f.qty, line: f.line || null }; });
+    var looseFlavors = unpairedF.map(function (f) { return f.id; });
+    return { items: items, looseQty: freeN.map(function (x) { return x.v; }), looseFlavors: looseFlavors, line: globalLine };
+  }
+
+  /* — fechas y horas — */
+  function today0() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function addDays(d, k) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + k); }
+  function fmtDate(d) { return DAYS_L[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1); }
+  function nextSaturday() { var d = addDays(today0(), premiumUnits() ? CONFIG.minAdvanceDays : 1); while (d.getDay() !== 6) d = addDays(d, 1); return d; }
+  function parseTime(n) {
+    var tm = /\ba las? (\d{1,2})(?: (\d{2}))?(?: ?(am|pm|de la manana|de la tarde|de la noche))?\b/.exec(n) || /\b(\d{1,2})(?: (\d{2}))? ?(am|pm)\b/.exec(n);
+    if (!tm) return '';
+    var h = +tm[1], mi = tm[2] || '00', ap = tm[3] || '';
+    if (h > 23) return '';
+    if (/pm|tarde|noche/.test(ap) && h < 12) h += 12;
+    else if (!ap && h >= 1 && h <= 6) h += 12;
+    if (/am|manana/.test(ap) && h === 12) h = 0;
+    return pad(h) + ':' + mi;
+  }
+  function parseWhen(text, strict) {
+    var n = norm(text), t0 = today0(), d = null, m, i, time = parseTime(n);
+    n = n.replace(/\b(por|en|de|a) la manana\b/g, ' ');
+    if (/\bpasado manana\b/.test(n)) d = addDays(t0, 2);
+    else if (/\bmanana\b/.test(n)) d = addDays(t0, 1);
+    else if (/\bhoy\b/.test(n)) d = t0;
+    if (!d && (m = /\b(\d{1,2}) ?\/ ?(\d{1,2})(?: ?\/ ?(\d{2,4}))?\b/.exec(n))) {
+      var dd = +m[1], mm = +m[2] - 1;
+      if (dd >= 1 && dd <= 31 && mm >= 0 && mm <= 11) {
+        var yy = m[3] ? (+m[3] < 100 ? 2000 + +m[3] : +m[3]) : t0.getFullYear();
+        d = new Date(yy, mm, dd); if (!m[3] && d < t0) d = new Date(yy + 1, mm, dd);
+      }
+    }
+    if (!d && (m = new RegExp('\\b(\\d{1,2}) (?:de )?(' + MON_RE + ')\\b').exec(n))) {
+      var mi2 = m[2] === 'setiembre' ? 8 : MON_N.indexOf(m[2]), y2 = t0.getFullYear();
+      d = new Date(y2, mi2, +m[1]); if (d < t0) d = new Date(y2 + 1, mi2, +m[1]);
+    }
+    if (!d) for (i = 0; i < 7; i++) {
+      if (new RegExp('\\b' + DAYS_N[i] + 's?\\b').test(n)) { var diff = (i - t0.getDay() + 7) % 7; if (diff === 0) diff = 7; d = addDays(t0, diff); break; }
+    }
+    if (!d && strict && (m = /^(?:el )?(\d{1,2})$/.exec(n)) && +m[1] >= 1 && +m[1] <= 31) {
+      d = new Date(t0.getFullYear(), t0.getMonth(), +m[1]); if (d < t0) d = new Date(t0.getFullYear(), t0.getMonth() + 1, +m[1]);
+    }
+    if (!d && !time) return null;
+    return { date: d, time: time, label: d ? fmtDate(d) : '', soon: d ? (d - t0) / 86400000 < CONFIG.minAdvanceDays : false };
+  }
+  function whenLabel() { return order.when + (order.time && order.when !== 'Por coordinar' ? ' · ' + order.time : ''); }
+  function setWhen(w) {
+    if (w.date) { order.when = w.label; order.soon = w.soon; order.date = w.date; }
+    if (w.time) order.time = w.time;
+  }
+
+  function parseDelivery(text) {
+    var n = norm(text);
+    if (/\b(recojo|recoger|recogerlo|recogerlas|recoger[eé]|paso por|yo voy|voy a buscar|en tienda|en el local)\b/.test(n)) return 'recojo';
+    if (/\b(delivery|domicilio|envio|enviar|enviarlo|enviarme|llevar|lleven|llevenlo|llevarlo|traer|traigan|a mi casa)\b/.test(n)) return 'delivery';
+    return null;
+  }
+  function looksLikeAddress(text) { return /\d/.test(text) || /\b(av|avenida|calle|jr|jiron|urb|urbanizacion|barrio|plaza|pasaje|psje|mz|lote|cerca|frente)\b/.test(norm(text)); }
+  function cutName(s) {
+    var parts = s.split(/\s+/), out = [], stop = /^(para|el|la|los|las|y|que|quiero|con|de|del|por|a|en|un|una|mi|me|necesito|pedido|delivery|recojo)$/i;
+    for (var i = 0; i < parts.length && out.length < 3; i++) { if (stop.test(parts[i])) break; out.push(parts[i]); }
+    return out.join(' ');
+  }
+  function extractExtras(text) {
+    var out = {}, w = parseWhen(text, false), pd = parseDelivery(text);
+    if (w) out.when = w;
+    if (pd) out.delivery = pd;
+    var m = /(?:a nombre de|me llamo|mi nombre es|soy)\s+([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+){0,3})/i.exec(text);
+    if (m) { var nm = cutName(m[1]); if (nm && !/^(de|del|el|la|un|una)$/i.test(nm.split(' ')[0])) out.name = nm; }
+    var am = /\b((?:av|avenida|calle|jr|jiron|urb|urbanizacion|pasaje|psje|plaza|barrio)\b\.?\s+[^;]+)$/i.exec(text);
+    if (am) { out.address = am[1].split(/\s+para\s+/i)[0].trim().slice(0, 160); if (!out.delivery) out.delivery = 'delivery'; }
+    return out;
+  }
+  function applyExtras(ex) {
+    if (ex.name && !order.name) setName(ex.name);
+    if (ex.when && !order.when) setWhen(ex.when); else if (ex.when && ex.when.time && !order.time) order.time = ex.when.time;
+    if (ex.delivery && !order.delivery) order.delivery = ex.delivery;
+    if (ex.address && order.delivery === 'delivery' && !order.address) order.address = ex.address;
+  }
+
+  /* ══════════════ 6. BASE DE CONOCIMIENTO (intenciones) ══════════════ */
   function flavorIntent(id) {
-    var f = FLAVORS.filter(function (x) { return x.id === id; })[0];
+    var f = flavorById(id);
     return function () {
       return { parts: [f.emoji + ' <b>Empanada de ' + f.name + '</b><br>' + f.desc,
                        'Clásica <b>' + money(LINES.clasica.price) + '</b> · Premium <b>' + money(LINES.premium.price) + '</b> la unidad.'],
@@ -255,25 +464,57 @@
     };
   }
 
+  /* ── Historia ninja (storytelling interactivo) ── */
+  var STORY = [
+    { t: '📜 Capítulo 1 · La leyenda', p: [
+      'Cuentan que en el Cusco, entre cerros, techos de teja y un aire tan fino como el hambre es grande, nació una misión secreta: <b>hacer la empanada más épica de la ciudad</b>. 🏔️',
+      'No bastaba con que fuera rica. Tenía que ser <b>rellena, crujiente y hecha con corazón</b>.'] },
+    { t: '🥷 Capítulo 2 · Los tres guardianes', p: [
+      'Para proteger la receta se unieron <b>tres ninjas guardianes del sabor</b>: uno de negro, uno de blanco y uno de rojo.',
+      'Su juramento es simple: <b>cero empanadas tristes, frías o a medias</b>. Solo masa dorada, relleno sabroso y mucho cariño en cada mordida.'] },
+    { t: '🔥 Capítulo 3 · El ritual del sábado', p: [
+      'Cada sábado, mientras el Cusco despierta, el horno se enciende. A las <b>8:00 a.m.</b> sale la primera hornada: <b>recién horneadas y bien calientitas</b>, con ese crujido que se escucha hasta en la otra cuadra. 🥟',
+      '🥩 Carne · 🍗 Pollo · 🌟 Mixta… ¿cuál será tu elegida? Las Clásicas (S/. 3.00) las puedes <b>reservar durante la semana</b> con pago anticipado por Yape.'] },
+    { t: '👑 Capítulo 4 · La Edición Dorada y los grandes eventos', p: [
+      'Para los antojos grandes existe la <b>Línea Premium (S/. 5.00)</b>: su molde es más grande y por eso sale <b>solo bajo pedido</b>. ✨',
+      'Y cuando tienes un evento de <b>lunes a viernes</b>, el equipo ninja se despliega desde <b>25 empanadas</b>, con 2 días de anticipación. 🎉',
+      '<b>Tu misión:</b> elige tus sabores, escríbenos por WhatsApp y paga por Yape. ¿Aceptas, guerrero/a del antojo?'] }
+  ];
+  function storyChapter(i) {
+    var c = STORY[i], last = i === STORY.length - 1;
+    var parts = c.p.slice(); parts[0] = '<b>' + c.t + '</b><br>' + parts[0];
+    say(parts, last
+      ? [{ label: '🛒 ¡Acepto la misión!', run: orderChip }, { label: '🔥 Sábado ninja', intent: 'horario' }, { label: '🥟 Menú y precios', intent: 'menu' }]
+      : [{ label: '▶ Siguiente capítulo', run: function () { storyChapter(i + 1); } }, { label: '🛒 Saltar al pedido', run: orderChip }]);
+  }
+  function findIntent(id) { return INTENTS.filter(function (i) { return i.id === id; })[0]; }
+
   var INTENTS = [
     { id: 'saludo', keys: ['hola', 'buenas', 'buenos', 'hey', 'saludos', 'buen dia', 'buenas tardes', 'buenas noches', 'alo'],
       answer: function () { return { parts: ['¡Hola! 🥷 ¿En qué misión te ayudo hoy?'], chips: CHIPS.main }; } },
 
-    { id: 'menu', keys: ['menu', 'carta', 'sabores', 'sabor', 'que venden', 'que tienen', 'variedad', 'opciones', 'productos', 'empanadas'],
+    { id: 'como', keys: ['como funciona', 'como pido', 'como pedir', 'como reservo', 'como reservar', 'como compro', 'como hago', 'proceso', 'pasos', 'ayuda', 'ayudame', 'que hago', 'instrucciones'],
+      answer: function () {
+        return { parts: ['🧭 <b>Así funciona (¡es fácil!)</b><br>1️⃣ Eliges tus empanadas y la fecha aquí.<br>2️⃣ Envías el pedido por <b>WhatsApp</b> para coordinar mejor.<br>3️⃣ Pagas por <b>Yape</b> (pago anticipado): tu pedido se atiende previa cancelación.<br>4️⃣ ¡Horneamos y disfrutas calientitas! 🔥',
+                         '<small>🔥 Sábados desde las ' + CONFIG.saturdayHour + ' (Clásica S/. 3.00) · 👑 Premium S/. 5.00 solo bajo pedido · 🎉 Lunes a viernes: desde ' + CONFIG.weekdayMin + ' empanadas con ' + CONFIG.minAdvanceDays + ' días de anticipación.</small>'],
+                 chips: [{ label: '🛒 Hacer pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
+      } },
+
+    { id: 'menu', keys: ['menu', 'carta', 'sabores', 'sabor', 'que venden', 'que tienen', 'variedad', 'opciones', 'productos'],
       answer: function () {
         return { parts: [
-          '🗡️ <b>Arsenal de sabores</b>: tres sabores en dos líneas.',
-          '🔥 <b>Línea Clásica · ' + money(LINES.clasica.price) + '</b><br>🥩 Carne · 🍗 Pollo · 🌟 Mixta',
-          '👑 <b>Línea Premium (Edición Dorada) · ' + money(LINES.premium.price) + '</b><br>Los mismos tres sabores.'
+          '🗡️ <b>Arsenal de sabores</b>: 🥩 Carne · 🍗 Pollo · 🌟 Mixta, en dos líneas.',
+          '🔥 <b>Línea Clásica · ' + money(LINES.clasica.price) + '</b><br>Sale <b>todos los sábados desde las ' + CONFIG.saturdayHour + '</b>, recién horneada. Puedes reservarla durante la semana con pago anticipado por Yape.',
+          '👑 <b>Línea Premium · ' + money(LINES.premium.price) + '</b><br>Solo <b>bajo pedido</b>, porque su molde es más grande. Pídela con mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación.'
         ], chips: [
           { label: '🥩 Carne', intent: 'carne' }, { label: '🍗 Pollo', intent: 'pollo' }, { label: '🌟 Mixta', intent: 'mixta' },
-          { label: '🛒 Hacer pedido', action: 'order' }
+          { label: '🛒 Hacer pedido', run: orderChip }, { label: '🧭 Cómo funciona', intent: 'como' }
         ] };
       } },
 
     { id: 'precio', keys: ['precio', 'precios', 'cuesta', 'cuanto', 'costo', 'vale', 'tarifa', 's/', 'soles', 'barato'],
       answer: function () {
-        return { parts: ['💰 <b>Precios por unidad</b><br>🔥 Línea Clásica: <b>' + money(LINES.clasica.price) + '</b><br>👑 Línea Premium: <b>' + money(LINES.premium.price) + '</b>'],
+        return { parts: ['💰 <b>Precios por unidad</b><br>🔥 Línea Clásica: <b>' + money(LINES.clasica.price) + '</b> (sale los sábados)<br>👑 Línea Premium: <b>' + money(LINES.premium.price) + '</b> (solo bajo pedido)<br><small>Tip: escríbeme \"¿cuánto salen 20 de carne?\" y te calculo el total.</small>'],
                  chips: CHIPS.after };
       } },
 
@@ -281,22 +522,23 @@
     { id: 'pollo', keys: ['pollo', 'pollito'], answer: flavorIntent('pollo') },
     { id: 'mixta', keys: ['mixta', 'mixtas', 'salchicha', 'queso'], answer: flavorIntent('mixta') },
 
-    { id: 'premium', keys: ['premium', 'dorada', 'edicion dorada', 'diferencia', 'clasica', 'clasicas', 'linea'],
+    { id: 'premium', keys: ['premium', 'dorada', 'edicion dorada', 'diferencia', 'diferencias', 'lineas', 'clasica', 'clasicas', 'bajo pedido', 'molde', 'grande', 'grandes'],
       answer: function () {
-        return { parts: ['👑 La <b>Línea Premium (Edición Dorada)</b> cuesta <b>' + money(LINES.premium.price) + '</b> y la <b>Clásica</b> ' + money(LINES.clasica.price) + '.',
-                         esc(CONFIG.premiumNote)], chips: CHIPS.after };
+        return { parts: ['👑 La <b>Línea Premium (Edición Dorada)</b> cuesta <b>' + money(LINES.premium.price) + '</b> y sale <b>solo bajo pedido</b>, porque su <b>molde es más grande</b>. Necesita ' + CONFIG.minAdvanceDays + ' días de anticipación.',
+                         '🔥 La <b>Clásica</b> (' + money(LINES.clasica.price) + ') sale <b>todos los sábados</b> desde las ' + CONFIG.saturdayHour + '. ' + esc(CONFIG.premiumNote)], chips: CHIPS.after };
       } },
 
-    { id: 'horario', keys: ['horario', 'horarios', 'hora', 'horas', 'abren', 'abierto', 'atienden', 'sabado', 'sabados', 'cuando', 'dias', 'anticipacion', 'atencion'],
+    { id: 'horario', keys: ['horario', 'horarios', 'hora', 'horas', 'abren', 'abierto', 'atienden', 'sabado', 'sabados', 'hornada', 'hornean', 'calientes', 'calientitas', 'recien', 'salen', 'sacan', 'cuando', 'dias', 'atencion', 'disponible', 'disponibilidad', 'demora', 'demoran', 'tiempo', 'tardan'],
       answer: function () {
-        return { parts: ['⏰ <b>Horario</b><br>' + esc(CONFIG.schedule),
-                         'Para coordinar tu fecha, te ayudo a armar el pedido o escríbenos por <a href="' + waLink() + '" target="_blank" rel="noopener">WhatsApp</a>.'],
-                 chips: CHIPS.after };
+        return { parts: ['🔥 <b>Sábado Ninja</b><br>Todos los sábados desde las <b>' + CONFIG.saturdayHour + '</b> sacamos las empanadas <b>recién horneadas y bien calientitas</b> (Clásicas · ' + money(LINES.clasica.price) + '). Puedes <b>reservarlas durante la semana</b> con pago anticipado por Yape.',
+                         '🎉 <b>De lunes a viernes</b> atendemos <b>pedidos para todo tipo de eventos desde ' + CONFIG.weekdayMin + ' empanadas</b>, con coordinación previa de <b>mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación</b>.',
+                         '<small>' + statusPill() + '</small>'],
+                 chips: [{ label: '🛒 Reservar las mías', run: orderChip }, { label: '🎉 Eventos (25+)', intent: 'mayor' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
       } },
 
     { id: 'delivery', keys: ['delivery', 'envio', 'envios', 'entrega', 'entregan', 'domicilio', 'reparto', 'llevan', 'traen', 'moto', 'zona'],
       answer: function () {
-        return { parts: ['🛵 <b>Delivery</b><br>' + esc(CONFIG.delivery) + ' Recuerda que los pedidos se hacen con 3 a 4 días de anticipación.'],
+        return { parts: ['🛵 <b>Delivery</b><br>' + esc(CONFIG.delivery) + ' Lo coordinamos por WhatsApp junto con tu pedido (sábados y pedidos entre semana).'],
                  chips: CHIPS.after };
       } },
 
@@ -307,44 +549,62 @@
 
     { id: 'contacto', keys: ['contacto', 'telefono', 'llamar', 'llamada', 'numero', 'celular', 'whatsapp', 'wasap', 'redes', 'facebook', 'instagram', 'escribir'],
       answer: function () {
-        var tels = CONFIG.phones.map(function (p) { return '<a href="tel:' + p.replace(/\s/g, '') + '">' + esc(p) + '</a>'; }).join('<br>');
+        var tels = CONFIG.phones.map(function (p) { return '<a href=\"tel:' + p.replace(/\s/g, '') + '\">' + esc(p) + '</a>'; }).join('<br>');
         return { parts: ['📲 <b>Contacto</b><br>' + tels,
-                         '<a href="' + waLink('¡Hola! Quiero pedir empanadas 🥟') + '" target="_blank" rel="noopener">💬 Escribir por WhatsApp</a><br>' +
-                         '<a href="' + CONFIG.facebook + '" target="_blank" rel="noopener">Facebook</a> · <a href="' + CONFIG.instagram + '" target="_blank" rel="noopener">Instagram</a>'],
+                         'Los pedidos se hacen por <b>WhatsApp</b>, para coordinar mejor:<br><a href=\"' + waLink('¡Hola! Quiero pedir empanadas 🥟') + '\" target=\"_blank\" rel=\"noopener\">💬 Escribir por WhatsApp</a><br>' +
+                         '<a href=\"' + CONFIG.facebook + '\" target=\"_blank\" rel=\"noopener\">Facebook</a> · <a href=\"' + CONFIG.instagram + '\" target=\"_blank\" rel=\"noopener\">Instagram</a>'],
                  chips: CHIPS.after };
       } },
 
-    { id: 'pedido', keys: ['pedir', 'pedido', 'pedidos', 'ordenar', 'orden', 'comprar', 'quiero', 'encargar', 'encargo', 'reservar', 'docena', 'media docena'],
-      answer: function () { startOrder(); return null; } },
+    { id: 'pedido', keys: ['pedir', 'pedido', 'pedidos', 'ordenar', 'orden', 'comprar', 'quiero', 'quisiera', 'encargar', 'encargo', 'reservar', 'reserva', 'reservo', 'apartar', 'docena', 'media docena'],
+      answer: function () { orderChip(); return null; } },
 
-    { id: 'mayor', keys: ['por mayor', 'mayor', 'evento', 'cumpleanos', 'fiesta', 'oficina', 'reunion', 'catering', 'bastantes', 'muchas'],
+    { id: 'mayor', keys: ['por mayor', 'mayor', 'evento', 'eventos', 'cumpleanos', 'fiesta', 'oficina', 'reunion', 'catering', 'bastantes', 'muchas', 'lunes a viernes', 'entre semana', 'minimo', 'cantidad minima'],
       answer: function () {
-        return { parts: ['🎉 ¡Para eventos y pedidos grandes, mejor! Recuerda pedir con <b>3 a 4 días de anticipación</b>.',
-                         'Arma tu lista aquí y envíala por WhatsApp para que el equipo confirme disponibilidad.'],
-                 chips: [{ label: '🛒 Hacer pedido', action: 'order' }, { label: '📞 Contacto', intent: 'contacto' }] };
+        return { parts: ['🎉 <b>Eventos y pedidos grandes</b><br>De <b>lunes a viernes</b> atendemos pedidos <b>desde ' + CONFIG.weekdayMin + ' empanadas</b> para todo tipo de eventos (cumpleaños, oficinas, reuniones, fiestas…).',
+                         '📆 Se coordinan con <b>mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación</b>, por WhatsApp y con pago previo por Yape.',
+                         'Escríbeme tu lista (ej.: <i>\"50 de carne y 30 de pollo para el miércoles\"</i>) y la dejo lista para enviar.'],
+                 chips: [{ label: '🛒 Hacer pedido', run: orderChip }, { label: '🧮 ¿Cuántas necesito?', intent: 'cuantas' }, { label: '💳 Cómo pagar', intent: 'pago' }] };
       } },
 
-    { id: 'pago', keys: ['pago', 'pagos', 'pagar', 'yape', 'plin', 'efectivo', 'tarjeta', 'transferencia', 'deposito'],
+    { id: 'cuantas', keys: ['cuantas', 'personas', 'invitados', 'alcanzan', 'alcanza', 'recomiendas', 'recomienda', 'recomendacion', 'sugieres', 'para cuantos', 'cuantas necesito'],
+      answer: function (text) {
+        var n = norm(text || ''), m = /(\d{1,3}) (personas|invitados|amigos|pax|gente)/.exec(n);
+        if (m) {
+          var p = +m[1], lo = p * 2, hi = p * 3;
+          return { parts: ['🧮 Para <b>' + p + ' personas</b>, como referencia calcula <b>2 a 3 empanadas por persona</b>: entre <b>' + lo + ' y ' + hi + '</b> empanadas.<br>En Línea Clásica serían de <b>' + money(lo * LINES.clasica.price) + '</b> a <b>' + money(hi * LINES.clasica.price) + '</b>.' +
+                           (hi < CONFIG.weekdayMin ? '<br><small>Recuerda: entre semana el mínimo es de ' + CONFIG.weekdayMin + ' empanadas; los sábados no hay mínimo.</small>' : '')],
+                   chips: [{ label: '🛒 Armar mi pedido', run: orderChip }, { label: '🥟 Menú y precios', intent: 'menu' }] };
+        }
+        return { parts: ['🧮 Dime <b>para cuántas personas</b> y te calculo cuántas empanadas necesitas. Ej.: <i>\"para 15 personas\"</i>.'],
+                 chips: [10, 20, 30].map(function (q) { return { label: '👥 ' + q + ' personas', run: function () { answerIntent(findIntent('cuantas'), 'para ' + q + ' personas'); } }; }) };
+      } },
+
+    { id: 'pago', keys: ['pago', 'pagos', 'pagar', 'yape', 'plin', 'efectivo', 'tarjeta', 'transferencia', 'deposito', 'adelanto', 'adelantado', 'anticipado', 'abono', 'metodo', 'metodos'],
       answer: function () {
-        return { parts: ['💳 Los medios de pago se coordinan directamente con el equipo al confirmar tu pedido por WhatsApp.'], chips: CHIPS.after };
+        return { parts: ['💳 <b>Pagos por Yape</b><br>Los pedidos se atienden <b>previa cancelación por Yape</b>. Las Clásicas del sábado también se pueden <b>reservar durante la semana con pago anticipado</b>.',
+                         'Cuando envíes tu pedido por <a href=\"' + waLink() + '\" target=\"_blank\" rel=\"noopener\">WhatsApp</a>, el equipo te confirma el monto y el número de Yape. <small>Por seguridad, confirma siempre el número por WhatsApp.</small>'],
+                 chips: CHIPS.after };
       } },
 
     { id: 'ingredientes', keys: ['ingredientes', 'alergia', 'alergico', 'alergias', 'gluten', 'vegetariano', 'vegano', 'picante', 'contiene', 'lleva', 'relleno'],
       answer: function () {
         return { parts: ['🌿 <b>Ingredientes</b><br>🥩 Carne: carne molida, cebolla, ajo, comino y pimienta.<br>🍗 Pollo: pollo sazonado.<br>🌟 Mixta: salchicha, queso y orégano.',
-                         'Si tienes alguna <b>alergia o restricción alimentaria</b>, consúltalo por <a href="' + waLink('Hola, tengo una consulta sobre ingredientes/alergias') + '" target="_blank" rel="noopener">WhatsApp</a> antes de pedir.'],
+                         'Si tienes alguna <b>alergia o restricción alimentaria</b>, consúltalo por <a href=\"' + waLink('Hola, tengo una consulta sobre ingredientes/alergias') + '\" target=\"_blank\" rel=\"noopener\">WhatsApp</a> antes de pedir.'],
                  chips: CHIPS.after };
       } },
 
-    { id: 'nosotros', keys: ['quienes', 'nosotros', 'historia', 'negocio', 'horneadas', 'caseras', 'ninja', 'ninjas', 'calidad'],
+    { id: 'conservar', keys: ['recalentar', 'calentar', 'guardar', 'conservar', 'duran', 'sobran', 'fria', 'frias', 'tibias', 'crujientes'],
       answer: function () {
-        return { parts: ['🥷 Somos <b>Plan Ninja Empanada</b>: empanadas horneadas en casa con amor ninja, en el Cusco. Usamos productos locales para un sabor auténtico cusqueño, recién horneadas y crujientes.'],
-                 chips: CHIPS.after };
+        return { parts: ['🔥 <b>Tip ninja</b><br>Están más ricas recién salidas del horno. Si te sobran, caliéntalas unos minutos en horno o airfryer para recuperar lo crujiente.'], chips: CHIPS.after };
       } },
+
+    { id: 'historia', keys: ['quienes', 'nosotros', 'historia', 'leyenda', 'cuentame', 'origen', 'negocio', 'marca', 'calidad', 'caseras', 'ninja', 'ninjas', 'secreto', 'por que ninja'],
+      answer: function () { storyChapter(0); return null; } },
 
     { id: 'app', keys: ['app', 'aplicacion', 'aplicativo'],
       answer: function () {
-        return { parts: ['📲 También puedes pedir desde nuestra app: <a href="' + CONFIG.appUrl + '" target="_blank" rel="noopener">abrir la app</a>.'], chips: CHIPS.after };
+        return { parts: ['📲 También puedes pedir desde nuestra app: <a href=\"' + CONFIG.appUrl + '\" target=\"_blank\" rel=\"noopener\">abrir la app</a>.'], chips: CHIPS.after };
       } },
 
     { id: 'gracias', keys: ['gracias', 'genial', 'perfecto', 'excelente', 'ok gracias', 'listo'],
@@ -359,111 +619,365 @@
     INTENTS.forEach(function (it) {
       var s = 0;
       it.keys.forEach(function (k) {
-        if (k.indexOf(' ') > -1) { if (n.indexOf(k) > -1) s += 2 * k.split(' ').length; }
-        else if (tokens.some(function (t) { return t === k || (k.length >= 5 && t.indexOf(k) === 0); })) s += k.length >= 5 ? 2 : 1.5;
+        if (k.indexOf(' ') > -1) { if (n.indexOf(k) > -1) s += 2 * k.split(' ').length; return; }
+        var hit = tokens.some(function (t) {
+          return t === k || (k.length >= 5 && (t.indexOf(k) === 0 || (t.length >= 5 && lev(t, k) <= 1)));
+        });
+        if (hit) s += k.length >= 5 ? 2 : 1.5;
       });
       if (s > bestScore) { bestScore = s; best = it; }
     });
     return bestScore >= 1.5 ? best : null;
   }
 
+  function answerIntent(it, text) {
+    unknownCount = 0;
+    var out = it.answer(text);
+    if (!out) return;
+    var chips = out.chips;
+    if (order.active && it.id !== 'adios') chips = (mode ? [] : chipsAfterAnswer());
+    say(out.parts, chips);
+  }
   function respond(intentId) {
     var it = INTENTS.filter(function (i) { return i.id === intentId; })[0];
-    if (!it) return;
-    unknownCount = 0;
-    var out = it.answer();
-    if (out) say(out.parts, out.chips);
+    if (it) answerIntent(it);
   }
 
-  /* ══════════════ 6. FLUJO DE PEDIDO ══════════════ */
+  /* ══════════════ 7. FLUJO DE PEDIDO (guiado, pero acepta texto libre) ══════════════ */
+  function orderChip() {
+    if (order.active && totals().units) {
+      say(['Ya tienes un pedido en curso 🥷 ¿Lo retomamos o empezamos uno nuevo?'], [{ label: '▶️ Retomar', run: resumeOrder }, { label: '🆕 Nuevo pedido', run: startOrder }]);
+    } else startOrder();
+  }
+  function beginOrder() { cart = {}; order = newOrder(); order.active = true; resetPend(); if (cartUI) cartUI.lock(); cartUI = null; leadMsg = ''; mode = null; }
   function startOrder() {
-    cart = {}; order = { name: '', when: '' }; mode = 'cart';
-    say(['¡Misión aceptada! 🥷 Elige cuántas empanadas quieres y pulsa <b>Continuar</b>.', cartWidget], []);
+    beginOrder(); mode = 'cart';
+    say(['¡Misión aceptada! 🥷 <small>Paso 1 de 4</small><br>Elige cuántas empanadas quieres y pulsa <b>Continuar</b>.<br><small>O escríbelo directo: <i>"10 de carne y 5 de pollo"</i></small>', cartWidget], []);
+  }
+  function orderFromText(po, ex, text) { beginOrder(); applyExtras(ex); absorb(po, text); resolvePending(); }
+  function resumeOrder() { if (cartUI) { mode = 'cart'; say(['Seguimos 👆 Ajusta tus empanadas y pulsa <b>Continuar</b>.'], []); } else nextStep(); }
+  function cancelOrder() {
+    order = newOrder(); cart = {}; resetPend(); if (cartUI) cartUI.lock(); cartUI = null; mode = null; leadMsg = '';
+    say(['Pedido cancelado. Cuando quieras, retomamos la misión 🥷'], CHIPS.main);
+  }
+
+  // Agrega (o reemplaza) cantidad de un sabor. Si no se sabe la línea, queda pendiente de preguntar.
+  function putItem(flavorId, line, qty, replace) {
+    var k = flavorId + '-' + line, f = flavorById(flavorId);
+    cart[k] = replace ? Math.min(500, qty) : Math.min(500, (cart[k] || 0) + qty);
+    return (replace ? '' : '') + qty + ' × ' + f.name + ' ' + LINES[line].short + ' (' + money(qty * LINES[line].price) + ')';
+  }
+  function addItem(flavorId, qty, line, replace) {
+    line = line || order.defaultLine;
+    if (!line) { pend.lines.push({ flavor: flavorId, qty: qty, replace: !!replace }); return; }
+    pend.ack.push(putItem(flavorId, line, qty, replace));
+  }
+  function absorb(po, text) {
+    var replace = REPLACE_RE.test(norm(text));
+    if (po.line) order.defaultLine = po.line;
+    po.items.forEach(function (it) {
+      if (it.line && !order.defaultLine) order.defaultLine = it.line;
+      addItem(it.flavor, it.qty, it.line || po.line, replace);
+    });
+    if (!po.items.length) {
+      if (po.looseQty.length === 1 && !po.looseFlavors.length) pend.qty = po.looseQty[0];
+      else if (po.looseFlavors.length && !po.looseQty.length) pend.flavors = po.looseFlavors.slice();
+    }
+  }
+  function resolvePending() {
+    if (pend.lines.length) return askLine();
+    if (pend.qty) return askFlavor();
+    if (pend.flavors.length) return askQty();
+    var ack = pend.ack.slice(); pend.ack = [];
+    var msg = ack.length ? '✅ Anoté: ' + ack.join(' · ') : '';
+    if (cartUI) {
+      cartUI.refresh(); mode = 'cart';
+      say([(msg ? msg + '<br>' : '') + 'Revisa arriba 👆 y pulsa <b>Continuar</b> cuando termines (o escribe "listo").'], []);
+      return;
+    }
+    if (msg) leadMsg = msg + (leadMsg ? '<br>' + leadMsg : '');
+    nextStep();
+  }
+
+  function askLine() {
+    mode = 'line';
+    var what = pend.lines.map(function (x) { return x.qty + ' × ' + flavorById(x.flavor).name; }).join(', ');
+    say([L('¿Tus <b>' + what + '</b> son de la línea <b>Clásica</b> (' + money(LINES.clasica.price) + ') o <b>Premium</b> (' + money(LINES.premium.price) + ')?')],
+        [{ label: '🔥 Clásica ' + money(LINES.clasica.price), run: function () { chooseLine('clasica'); } },
+         { label: '👑 Premium ' + money(LINES.premium.price), run: function () { chooseLine('premium'); } }]);
+  }
+  function chooseLine(l) {
+    order.defaultLine = l;
+    pend.lines.forEach(function (x) { pend.ack.push(putItem(x.flavor, l, x.qty, x.replace)); });
+    pend.lines = []; resolvePending();
+  }
+  function askFlavor() {
+    mode = 'flavor';
+    var chips = FLAVORS.map(function (f) { return { label: f.emoji + ' ' + f.name, run: function () { chooseFlavor(f.id); } }; });
+    chips.push({ label: '🔀 Repartidas', run: function () { var q = pend.qty; resetPend(); showCartWidget('Reparte tus <b>' + q + ' empanadas</b> entre los sabores 👇'); } });
+    say([L('Anoté <b>' + pend.qty + ' empanadas</b>. ¿De qué <b>sabor</b>?')], chips);
+  }
+  function chooseFlavor(id) { var q = pend.qty; pend.qty = 0; addItem(id, q, null, false); resolvePending(); }
+  function askQty() {
+    mode = 'qty';
+    var f = flavorById(pend.flavors[0]);
+    say([L('¿Cuántas de <b>' + f.name + '</b> quieres? <small>(escribe el número)</small>')],
+        [6, 12, 24].map(function (q) { return { label: q + (q === 6 ? ' (media docena)' : q === 12 ? ' (docena)' : ' (2 docenas)'), run: function () { chooseQty(q); } }; }));
+  }
+  function chooseQty(q) { var id = pend.flavors.shift(); addItem(id, q, null, false); resolvePending(); }
+
+  function nextStep() {
+    mode = null;
+    if (!totals().units) return showCartWidget();
+    if (!order.name) return askName();
+    if (!order.when) return askWhen();
+    if (!order.delivery) return askDelivery();
+    if (order.delivery === 'delivery' && !order.address) return askAddress();
+    showSummary();
+  }
+  function showCartWidget(msg) {
+    mode = 'cart';
+    say([L(msg || 'Elige cuántas empanadas quieres y pulsa <b>Continuar</b> 👇'), cartWidget], []);
+  }
+  function askName() {
+    mode = 'name';
+    var s = stored('pnb_name');
+    say([L('<small>Paso 2 de 4</small><br>¿A <b>nombre de quién</b> va el pedido?')], s ? [{ label: '👤 ' + s, run: function () { setName(s); nextStep(); } }] : []);
+    input.focus({ preventScroll: true });
+  }
+  function setName(t) { order.name = tidyName(t) || t.slice(0, 60); store('pnb_name', order.name); }
+  function askWhen() {
+    mode = 'when';
+    var sat = nextSaturday(), w = { date: sat, time: '', label: fmtDate(sat), soon: false };
+    say([L('<small>Paso 3 de 4</small><br>¿Para <b>qué fecha</b> lo necesitas? <small>🔥 Sábados desde las ' + CONFIG.saturdayHour + ' · 🎉 Lunes a viernes: eventos desde ' + CONFIG.weekdayMin + ' empanadas con ' + CONFIG.minAdvanceDays + ' días de anticipación. Puedes escribir: \"sábado 9am\" o \"15/12\".</small>')],
+        [{ label: '🔥 ' + fmtDate(sat) + ' · desde ' + CONFIG.saturdayHour, run: function () { setWhen(w); afterWhen(); nextStep(); } },
+         { label: '🎉 Evento entre semana', run: function () { say(['¡Genial! 🎉 Escribe la <b>fecha de tu evento</b> (con mínimo ' + CONFIG.minAdvanceDays + ' días de anticipación), ej.: <i>\"miércoles 10/12\"</i>.'], []); } },
+         { label: 'Lo coordino por WhatsApp', run: function () { order.when = 'Por coordinar'; order.date = null; order.soon = false; nextStep(); } }]);
+  }
+  function askDelivery() {
+    mode = 'delivery';
+    say([L('<small>Paso 4 de 4</small><br>¿Lo quieres con <b>delivery</b> o lo <b>recoges</b>? <small>(Delivery en toda la ciudad del Cusco, previa coordinación)</small>')],
+        [{ label: '🛵 Delivery', run: function () { order.delivery = 'delivery'; nextStep(); } },
+         { label: '🏠 Recojo en tienda', run: function () { order.delivery = 'recojo'; nextStep(); } },
+         { label: 'Lo coordino por WhatsApp', run: function () { order.delivery = 'coordinar'; nextStep(); } }]);
+  }
+  function askAddress() {
+    mode = 'address';
+    say([L('<small>Paso 4 de 4</small><br>¿A qué <b>dirección o zona</b> del Cusco te lo llevamos?')],
+        [{ label: 'Lo coordino por WhatsApp', run: function () { order.address = 'Por coordinar'; nextStep(); } }]);
+  }
+  function askNote() {
+    mode = 'note';
+    say(['¿Alguna <b>nota</b> para el equipo? <small>(ej.: sin picante, entregar en oficina)</small>'], [{ label: 'Sin nota', run: function () { order.note = ''; nextStep(); } }]);
+  }
+  function reask() {
+    switch (mode) {
+      case 'name': askName(); break; case 'when': askWhen(); break; case 'delivery': askDelivery(); break;
+      case 'address': askAddress(); break; case 'note': askNote(); break; case 'line': askLine(); break;
+      case 'flavor': askFlavor(); break; case 'qty': askQty(); break;
+      case 'cart': say(['Sigue con tu pedido 👆 (o escribe "cancelar" para salir).'], []); break;
+    }
   }
 
   function cartWidget() {
-    var box = el('div', 'pnb-cart'), counts = {};
-    var totalRow = el('div', 'pnb-total'), totalLabel = el('span', null, 'Total'), totalVal = el('span', null, money(0));
+    if (cartUI) cartUI.lock();
+    var box = el('div', 'pnb-cart'), seg = el('div', 'pnb-seg'), rows = el('div'), curLine = order.defaultLine || 'clasica', segBtns = {};
+    var totalRow = el('div', 'pnb-total'), totalLabel = el('span'), totalVal = el('span');
     totalRow.appendChild(totalLabel); totalRow.appendChild(totalVal);
+    var hint = el('div', 'pnb-hint');
 
-    function refresh() {
-      var t = 0;
-      PRODUCTS.forEach(function (p) { counts[p.id].textContent = cart[p.id] || 0; t += (cart[p.id] || 0) * p.price; });
-      totalVal.textContent = money(t);
-    }
-    function bump(p, d) { cart[p.id] = Math.max(0, Math.min(99, (cart[p.id] || 0) + d)); refresh(); }
-
-    Object.keys(LINES).forEach(function (lineId) {
-      box.appendChild(el('div', 'pnb-cart-h', LINES[lineId].label + ' · ' + money(LINES[lineId].price)));
-      PRODUCTS.filter(function (p) { return p.line === lineId; }).forEach(function (p) {
-        var row = el('div', 'pnb-item'), ctl = el('div', 'pnb-ctl');
-        var minus = el('button', 'pnb-step', '−'), plus = el('button', 'pnb-step', '+'), q = el('span', 'pnb-qty', '0');
-        minus.type = 'button'; plus.type = 'button';
-        minus.setAttribute('aria-label', 'Quitar ' + p.name); plus.setAttribute('aria-label', 'Agregar ' + p.name);
-        minus.addEventListener('click', function () { bump(p, -1); });
-        plus.addEventListener('click', function () { bump(p, 1); });
-        counts[p.id] = q;
-        row.appendChild(el('span', 'pnb-iname', p.flavor.emoji + ' ' + p.flavor.name));
-        ctl.appendChild(minus); ctl.appendChild(q); ctl.appendChild(plus); row.appendChild(ctl); box.appendChild(row);
+    function refreshTotals() {
+      var t = totals();
+      totalLabel.textContent = 'Total · ' + t.units + (t.units === 1 ? ' empanada' : ' empanadas'); totalVal.textContent = money(t.total);
+      hint.textContent = curLine === 'premium' ? '👑 Premium: solo bajo pedido (molde más grande) · mín. ' + CONFIG.minAdvanceDays + ' días de anticipación' : '🔥 Clásica: sale todos los sábados desde las ' + CONFIG.saturdayHour + ' · reserva en la semana';
+      Object.keys(LINES).forEach(function (lid) {
+        var u = 0; FLAVORS.forEach(function (f) { u += cart[f.id + '-' + lid] || 0; });
+        segBtns[lid].textContent = LINES[lid].emoji + ' ' + LINES[lid].short + ' ' + money(LINES[lid].price).replace('.00', '') + (u ? ' · ' + u : '');
+        segBtns[lid].setAttribute('aria-pressed', lid === curLine ? 'true' : 'false');
       });
+    }
+    function draw() {
+      rows.textContent = '';
+      FLAVORS.forEach(function (f) {
+        var id = f.id + '-' + curLine, row = el('div', 'pnb-item'), ctl = el('div', 'pnb-ctl');
+        var minus = el('button', 'pnb-step', '−'), plus = el('button', 'pnb-step', '+'), q = el('input', 'pnb-qtyin');
+        minus.type = 'button'; plus.type = 'button'; q.type = 'number'; q.min = '0'; q.max = '500'; q.inputMode = 'numeric';
+        q.value = cart[id] || 0; q.setAttribute('aria-label', 'Cantidad de ' + f.name);
+        function set(v) { v = Math.max(0, Math.min(500, v || 0)); cart[id] = v; q.value = v; refreshTotals(); }
+        minus.setAttribute('aria-label', 'Quitar ' + f.name); plus.setAttribute('aria-label', 'Agregar ' + f.name);
+        minus.addEventListener('click', function () { set((cart[id] || 0) - 1); });
+        plus.addEventListener('click', function () { set((cart[id] || 0) + 1); });
+        q.addEventListener('input', function () { var v = parseInt(q.value, 10); cart[id] = isNaN(v) ? 0 : Math.max(0, Math.min(500, v)); refreshTotals(); });
+        q.addEventListener('change', function () { set(parseInt(q.value, 10)); });
+        q.addEventListener('focus', function () { q.select(); });
+        row.appendChild(el('span', 'pnb-iname', f.emoji + ' ' + f.name));
+        ctl.appendChild(minus); ctl.appendChild(q); ctl.appendChild(plus); row.appendChild(ctl); rows.appendChild(row);
+      });
+      refreshTotals();
+    }
+    Object.keys(LINES).forEach(function (lid) {
+      var b = el('button', 'pnb-segbtn'); b.type = 'button'; segBtns[lid] = b;
+      b.addEventListener('click', function () { curLine = lid; order.defaultLine = lid; draw(); });
+      seg.appendChild(b);
     });
-    box.appendChild(totalRow);
+    box.appendChild(seg); box.appendChild(hint); box.appendChild(rows); box.appendChild(totalRow);
 
     var go = el('button', 'pnb-btn', 'Continuar ✓'); go.type = 'button';
-    go.addEventListener('click', function () {
-      var total = PRODUCTS.reduce(function (a, p) { return a + (cart[p.id] || 0) * p.price; }, 0);
-      if (!total) { go.textContent = 'Elige al menos 1 empanada 🥟'; setTimeout(function () { go.textContent = 'Continuar ✓'; }, 1800); return; }
-      box.classList.add('pnb-locked'); mode = 'name';
-      say(['¡Excelente elección! ¿A <b>nombre de quién</b> va el pedido? <small>(escribe "cancelar" para salir)</small>'], []);
-      input.focus({ preventScroll: true });
-    });
+    function proceed() {
+      var t = totals();
+      if (!t.units) { go.textContent = 'Elige al menos 1 empanada 🥟'; setTimeout(function () { go.textContent = 'Continuar ✓'; }, 1800); return; }
+      box.classList.add('pnb-locked'); cartUI = null;
+      leadMsg = '✅ ' + t.units + (t.units === 1 ? ' empanada' : ' empanadas') + ' · ' + money(t.total);
+      nextStep();
+    }
+    go.addEventListener('click', proceed);
     box.appendChild(go);
+    draw();
+    function lineUnits(lid) { var u = 0; FLAVORS.forEach(function (f) { u += cart[f.id + '-' + lid] || 0; }); return u; }
+    cartUI = {
+      refresh: function () {
+        if (order.defaultLine && lineUnits(order.defaultLine) > 0) curLine = order.defaultLine;
+        else if (!lineUnits(curLine)) Object.keys(LINES).forEach(function (l) { if (lineUnits(l) && !lineUnits(curLine)) curLine = l; });
+        draw();
+      },
+      go: proceed, lock: function () { box.classList.add('pnb-locked'); }
+    };
     return box;
   }
 
-  function handleMode(text) {
-    var n = norm(text);
-    if (n === 'cancelar' || n === 'salir' || n === 'volver') {
-      mode = null; say(['Pedido cancelado. Cuando quieras, retomamos la misión 🥷'], CHIPS.main); return;
+  function deliveryText() {
+    if (order.delivery === 'delivery') return 'Delivery' + (order.address && order.address !== 'Por coordinar' ? ' — ' + order.address : ' (dirección por coordinar)');
+    if (order.delivery === 'recojo') return 'Recojo en tienda (' + CONFIG.address + ')';
+    return 'Por coordinar';
+  }
+  /* ── Reglas del negocio: sábados, eventos entre semana, bajo pedido ── */
+  function premiumUnits() { var u = 0; FLAVORS.forEach(function (f) { u += cart[f.id + '-premium'] || 0; }); return u; }
+  function dayDiff(d) { return Math.round((d - today0()) / 86400000); }
+  function bakeDay() { var d = today0(); while (d.getDay() !== 6) d = addDays(d, 1); return d; }
+  function statusPill() {
+    var now = new Date();
+    if (now.getDay() === 6) return '🔥 ¡Hoy es Sábado Ninja! Desde las ' + CONFIG.saturdayHour;
+    return '🔥 Próxima hornada: ' + fmtDate(bakeDay()) + ' · ' + CONFIG.saturdayHour;
+  }
+  function checkRules() {
+    var r = { block: [], info: [], needUnits: 0 }, t = totals(), d = order.date;
+    if (!d) { if (order.when) r.info.push('📌 Fecha <b>por coordinar</b>: el equipo te confirma por WhatsApp.'); return r; }
+    var dow = d.getDay(), diff = dayDiff(d), prem = premiumUnits(), min = CONFIG.minAdvanceDays;
+    if (dow === 0) {
+      r.block.push('Los <b>domingos</b> no tenemos entregas. Elige un <b>sábado</b> (desde las ' + CONFIG.saturdayHour + ') o un día de <b>lunes a viernes</b> para eventos.');
+    } else if (dow === 6) {
+      if (prem && diff < min) r.block.push('La <b>Línea Premium</b> es <b>bajo pedido</b> (molde más grande) y necesita al menos <b>' + min + ' días de anticipación</b>.');
+      else {
+        r.info.push('🔥 Los sábados salen desde las <b>' + CONFIG.saturdayHour + '</b>, recién horneadas y calientitas.');
+        if (prem) r.info.push('👑 La Línea Premium se prepara bajo pedido.');
+        if (diff <= 0) r.info.push('Es para hoy: el equipo confirmará disponibilidad.');
+      }
+      if (order.time && order.time < '08:00') r.info.push('⏰ Salen desde las ' + CONFIG.saturdayHour + '; el equipo ajustará tu hora.');
+    } else {
+      if (t.units < CONFIG.weekdayMin) {
+        r.needUnits = CONFIG.weekdayMin - t.units;
+        r.block.push('De <b>lunes a viernes</b> atendemos pedidos <b>desde ' + CONFIG.weekdayMin + ' empanadas</b> (eventos). Te faltan <b>' + r.needUnits + '</b>. Si necesitas menos, te esperamos el <b>sábado</b> 🔥');
+      }
+      if (diff < min) r.block.push('Entre semana los pedidos se coordinan con <b>mínimo ' + min + ' días de anticipación</b>.');
     }
-    if (mode === 'name') {
-      order.name = text.slice(0, 60); mode = 'when';
-      say(['Gracias, <b>' + esc(order.name) + '</b> 🙌 ¿Para <b>qué fecha</b> lo necesitas y a qué <b>zona o dirección</b> del Cusco? <small>(recuerda: pedidos con 3 a 4 días de anticipación)</small>'],
-          [{ label: 'Lo coordino por WhatsApp', action: 'skipwhen' }]);
-      return;
-    }
-    if (mode === 'when') { order.when = text.slice(0, 200); mode = null; showSummary(); }
+    return r;
+  }
+  function afterWhen() { var r = checkRules(); if (r.block.length) leadMsg = (leadMsg ? leadMsg + '<br>' : '') + '⚠️ ' + r.block.join('<br>⚠️ '); }
+  function orderKind() {
+    if (!order.date) return '';
+    var d = order.date.getDay();
+    return d === 6 ? 'Sábado ninja (hornada desde las ' + CONFIG.saturdayHour + ')' : (d === 0 ? '' : 'Pedido entre semana (evento)');
+  }
+
+  function waText() {
+    var t = totals(), out = ['¡Hola Plan Ninja! 🥷 Quiero hacer este pedido:', ''];
+    Object.keys(LINES).forEach(function (lid) {
+      var rows = FLAVORS.filter(function (f) { return (cart[f.id + '-' + lid] || 0) > 0; });
+      if (!rows.length) return;
+      out.push(LINES[lid].emoji + ' ' + LINES[lid].label + ' (' + money(LINES[lid].price) + ' c/u)');
+      rows.forEach(function (f) { var q = cart[f.id + '-' + lid]; out.push('• ' + q + ' × ' + f.name + ' = ' + money(q * LINES[lid].price)); });
+      out.push('');
+    });
+    out.push('Total: ' + t.units + ' empanadas · ' + money(t.total), '👤 Nombre: ' + order.name, '📅 Fecha: ' + whenLabel());
+    if (orderKind()) out.push('📌 Tipo: ' + orderKind());
+    out.push('🚚 Entrega: ' + deliveryText());
+    if (order.note) out.push('📝 Nota: ' + order.note);
+    out.push('💳 Pago: por Yape (anticipado). Por favor confírmenme monto y número.');
+    return out.join('\n');
   }
 
   function showSummary() {
-    var picked = PRODUCTS.filter(function (p) { return (cart[p.id] || 0) > 0; });
-    var total = picked.reduce(function (a, p) { return a + cart[p.id] * p.price; }, 0);
-    var lines = ['¡Hola Plan Ninja! 🥷 Quiero hacer este pedido:', ''];
-    picked.forEach(function (p) { lines.push('• ' + cart[p.id] + ' x ' + p.name + ' (' + money(p.price) + ' c/u)'); });
-    lines.push('', 'Total: ' + money(total), 'Nombre: ' + order.name, 'Fecha / zona de entrega: ' + (order.when || 'Por coordinar'));
-    var url = waLink(lines.join('\n'));
-
-    say(['Así quedó tu pedido 👇', function () {
-      var card = el('div', 'pnb-cart'); card.appendChild(el('div', 'pnb-cart-h', 'Resumen del pedido'));
+    mode = null;
+    var rl = checkRules(), blocked = rl.block.length > 0, url = waLink(waText());
+    function fixChips() {
+      var c = [];
+      if (rl.needUnits) c.push({ label: '➕ Agregar empanadas', run: function () { mode = 'cart'; say(['Te faltan <b>' + rl.needUnits + '</b> para llegar a ' + CONFIG.weekdayMin + ' 👇', cartWidget], []); } });
+      c.push({ label: '📅 Elegir otra fecha', run: function () { order.when = ''; order.time = ''; order.date = null; order.soon = false; nextStep(); } });
+      c.push({ label: '🔥 Pasar al próximo sábado', run: function () { var s = nextSaturday(); setWhen({ date: s, time: '', label: fmtDate(s), soon: false }); showSummary(); } });
+      c.push({ label: '💬 Consultar por WhatsApp', run: function () {
+        window.open(waLink('Hola, quisiera consultar sobre un pedido de empanadas 🥟'), '_blank', 'noopener');
+        say(['Abrí WhatsApp en otra pestaña 💬 Aquí sigo por si quieres ajustar algo.'], fixChips());
+      } });
+      c.push({ label: '✖ Cancelar', run: cancelOrder });
+      return c;
+    }
+    say([L(blocked ? 'Casi listo 🥷 pero hay un detalle por ajustar 👇' : 'Así quedó tu pedido 👇'), function () {
+      var t = totals(), card = el('div', 'pnb-cart'); card.appendChild(el('div', 'pnb-cart-h', 'Resumen del pedido'));
       var ul = el('ul', 'pnb-sum');
-      picked.forEach(function (p) { ul.appendChild(el('li', null, cart[p.id] + ' × ' + p.name + ' — ' + money(cart[p.id] * p.price))); });
+      PRODUCTS.forEach(function (p) { var q = cart[p.id] || 0; if (q > 0) ul.appendChild(el('li', null, q + ' × ' + p.flavor.name + ' ' + LINES[p.line].short + ' — ' + money(q * p.price))); });
       card.appendChild(ul);
-      var t = el('div', 'pnb-total'); t.appendChild(el('span', null, 'Total')); t.appendChild(el('span', null, money(total))); card.appendChild(t);
-      card.appendChild(el('div', null, '👤 ' + order.name));
-      card.appendChild(el('div', null, '📅 ' + (order.when || 'Por coordinar')));
-      var a = el('a', 'pnb-btn pnb-wa', '📲 Enviar pedido por WhatsApp'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
-      card.appendChild(a);
+      var tr = el('div', 'pnb-total'); tr.appendChild(el('span', null, 'Total · ' + t.units + ' emp.')); tr.appendChild(el('span', null, money(t.total))); card.appendChild(tr);
+      card.appendChild(el('div', 'pnb-kv', '👤 ' + order.name));
+      card.appendChild(el('div', 'pnb-kv', '📅 ' + whenLabel()));
+      card.appendChild(el('div', 'pnb-kv', '🚚 ' + deliveryText()));
+      if (order.note) card.appendChild(el('div', 'pnb-kv', '📝 ' + order.note));
+      rl.block.forEach(function (m) { var w = el('div', 'pnb-warn'); w.innerHTML = '⚠️ ' + m; card.appendChild(w); });
+      rl.info.forEach(function (m) { var k = el('div', 'pnb-kv'); k.innerHTML = m; card.appendChild(k); });
+      if (!blocked) {
+        var y = el('div', 'pnb-yape'); y.innerHTML = '💳 <b>Pago por Yape</b> (anticipado): al enviar tu pedido por WhatsApp te confirmamos monto y número.'; card.appendChild(y);
+        var fl = el('ul', 'pnb-flow');
+        ['Envías el pedido por <b>WhatsApp</b>', 'El equipo confirma <b>disponibilidad</b>', 'Pagas por <b>Yape</b> (pago anticipado)', '¡Horneamos y recibes tus empanadas <b>calientitas</b>! 🔥'].forEach(function (s, i) {
+          var li = el('li'); li.innerHTML = '<b class=\"n\">' + (i + 1) + '</b><span>' + s + '</span>'; fl.appendChild(li);
+        });
+        card.appendChild(fl);
+        var a = el('a', 'pnb-btn pnb-wa', '📲 Enviar pedido por WhatsApp'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
+        a.addEventListener('click', function () {
+          setTimeout(function () { say(['¡Misión enviada! 🥷🔥 En WhatsApp solo pulsa <b>enviar</b>. El equipo te confirma y te pasa el número de Yape.'], CHIPS.after); }, 500);
+        });
+        card.appendChild(a);
+      }
       return card;
-    }, 'Tu pedido se confirma cuando lo envías por WhatsApp: ahí el equipo valida disponibilidad y coordina la entrega y el pago.'],
-    [{ label: '✏️ Cambiar pedido', action: 'order' }, { label: '🥟 Ver menú', intent: 'menu' }]);
+    }].concat(blocked ? [] : ['Tu pedido <b>se confirma cuando lo envías por WhatsApp</b>: ahí el equipo valida disponibilidad, coordina la entrega y te indica el pago por Yape.']),
+    blocked ? fixChips() : [
+      { label: '✏️ Productos', run: function () { mode = 'cart'; say(['Ajusta tus empanadas 👇', cartWidget], []); } },
+      { label: '✏️ Nombre', run: function () { order.name = ''; nextStep(); } },
+      { label: '✏️ Fecha', run: function () { order.when = ''; order.time = ''; order.date = null; order.soon = false; nextStep(); } },
+      { label: '✏️ Entrega', run: function () { order.delivery = ''; order.address = ''; nextStep(); } },
+      { label: '📝 Nota', run: askNote },
+      { label: '✖ Cancelar', run: cancelOrder }]);
   }
 
-  /* ══════════════ 7. ENTRADA DEL USUARIO ══════════════ */
+  function quote(po) {
+    var parts = [], units = 0, byLine = { clasica: 0, premium: 0 }, lines = [];
+    if (po.items.length) {
+      po.items.forEach(function (it) {
+        units += it.qty; var f = flavorById(it.flavor), l = it.line || po.line;
+        if (l) { byLine[l] += it.qty * LINES[l].price; lines.push(it.qty + ' × ' + f.name + ' ' + LINES[l].short + ' = ' + money(it.qty * LINES[l].price)); }
+        else { byLine.clasica += it.qty * 3; byLine.premium += it.qty * 5; lines.push(it.qty + ' × ' + f.name); }
+      });
+    } else { units = po.looseQty[0]; byLine.clasica = units * LINES.clasica.price; byLine.premium = units * LINES.premium.price; }
+    var anyFixed = po.items.length && po.items.every(function (it) { return it.line || po.line; });
+    if (anyFixed) parts.push('💰 <b>' + units + ' empanadas</b><br>' + lines.join('<br>') + '<br><b>Total: ' + money(byLine.clasica + byLine.premium) + '</b>');
+    else parts.push('💰 <b>' + units + ' empanadas</b><br>🔥 Clásica: <b>' + money(byLine.clasica) + '</b><br>👑 Premium: <b>' + money(byLine.premium) + '</b>');
+    say(parts, [{ label: '🛒 Pedir esto', run: function () { orderFromText(po, {}, ''); } }, { label: '🥟 Ver menú', intent: 'menu' }, { label: '📞 Contacto', intent: 'contacto' }]);
+  }
+
+  /* ══════════════ 8. ENTRADA DEL USUARIO ══════════════ */
   function fallback(text) {
     unknownCount++;
     var wa = '<a href="' + waLink('Hola, tengo una consulta: ' + text) + '" target="_blank" rel="noopener">hablar con el equipo por WhatsApp</a>';
-    say(['No estoy seguro de haberte entendido 🤔 Puedo ayudarte con <b>menú, precios, horarios, delivery y pedidos</b>.' +
-         (unknownCount >= 2 ? '<br>Si prefieres, puedes ' + wa + '.' : '')], CHIPS.main);
+    say(['No estoy seguro de haberte entendido 🤔 Puedo ayudarte con <b>menú, precios, horarios, delivery y pedidos</b>. Prueba: <i>"20 de carne clásica para el sábado"</i>.' +
+         (unknownCount >= 2 ? '<br>Si prefieres, puedes ' + wa + '.' : '')], order.active ? chipsAfterAnswer() : CHIPS.main);
   }
 
   function askAI(text) {
@@ -481,11 +995,99 @@
       .then(function () { clearTimeout(timer); });
   }
 
-  function handle(text) {
-    if (mode === 'cart') { say(['Usa los botones <b>+</b> y <b>−</b> para elegir tus empanadas y luego <b>Continuar</b>. Escribe "cancelar" para salir.'], []); return; }
-    if (mode) { handleMode(text); return; }
+  // ¿El texto es una pregunta suelta en medio del pedido (y no la respuesta esperada)?
+  function isSideQuestion(text) {
+    var it = detect(text); if (!it || it.id === 'pedido' || it.id === 'saludo' || it.id === 'gracias') return false;
+    var words = text.trim().split(/\s+/).length, q = /\?/.test(text);
+    if (mode === 'name') return q || words >= 4;
+    if (mode === 'when') return !parseWhen(text, true) && (q || words >= 4);
+    if (mode === 'delivery') return !parseDelivery(text) && (q || words >= 4);
+    return q;
+  }
+
+  function handleMode(text) {
+    var n = norm(text);
+    if (isSideQuestion(text)) { answerIntent(detect(text), text); reask(); return; }
+    switch (mode) {
+      case 'name': setName(text); nextStep(); break;
+      case 'when': {
+        var w = parseWhen(text, true);
+        if (w && w.date) { setWhen(w); afterWhen(); nextStep(); }
+        else if (w && w.time) { order.time = w.time; say(['Anoté la hora <b>' + w.time + '</b> ✅ ¿Y para qué <b>día</b>?'], [{ label: '📅 ' + fmtDate(nextSaturday()), run: function () { setWhen({ date: nextSaturday(), time: '', label: fmtDate(nextSaturday()), soon: false }); afterWhen(); nextStep(); } }]); }
+        else if (/coordin|despues|luego|no se|aun no|whatsapp/.test(n)) { order.when = 'Por coordinar'; nextStep(); }
+        else { order.when = text.slice(0, 100); order.soon = false; nextStep(); }
+        break;
+      }
+      case 'delivery': {
+        var pd = parseDelivery(text);
+        if (pd) { order.delivery = pd; if (pd === 'delivery' && looksLikeAddress(text)) order.address = text.slice(0, 160); }
+        else if (looksLikeAddress(text)) { order.delivery = 'delivery'; order.address = text.slice(0, 160); }
+        else if (/coordin|whatsapp/.test(n)) order.delivery = 'coordinar';
+        else { say(['Elige una opción 👇'], [{ label: '🛵 Delivery', run: function () { order.delivery = 'delivery'; nextStep(); } }, { label: '🏠 Recojo en tienda', run: function () { order.delivery = 'recojo'; nextStep(); } }]); return; }
+        nextStep(); break;
+      }
+      case 'address': order.address = /coordin|whatsapp/.test(n) ? 'Por coordinar' : text.slice(0, 160); nextStep(); break;
+      case 'note': order.note = /^(no|nada|ninguna|sin nota|ninguno)$/.test(n) ? '' : text.slice(0, 200); nextStep(); break;
+      case 'line': { var l = lineFromText(n); if (l) chooseLine(l); else askLine(); break; }
+      case 'flavor': {
+        var po = parseOrder(text);
+        if (po.looseFlavors.length) chooseFlavor(po.looseFlavors[0]);
+        else if (/repart|varios|surtid|de todo/.test(n)) { var q = pend.qty; resetPend(); showCartWidget('Reparte tus <b>' + q + ' empanadas</b> entre los sabores 👇'); }
+        else askFlavor();
+        break;
+      }
+      case 'qty': { var pq = parseOrder(text); if (pq.looseQty.length) chooseQty(pq.looseQty[0]); else askQty(); break; }
+    }
+  }
+
+  function handleCartText(text) {
+    var n = norm(text);
+    if (/^(listo|continuar|continuo|seguir|siguiente|ya|ok|okey|eso es todo|eso|nada mas|confirmar|confirmo|vale|dale|ya esta)$/.test(n)) { if (!totals().units) { say(['Aún no elegiste ninguna empanada 🥟 Escribe algo como <i>"10 de carne"</i> o usa los botones <b>+</b>.'], []); return; } cartUI && cartUI.go(); return; }
+    var po = parseOrder(text), ex = extractExtras(text);
+    if (po.items.length || po.looseQty.length === 1 || po.looseFlavors.length) { applyExtras(ex); absorb(po, text); resolvePending(); return; }
     var it = detect(text);
-    if (it) { unknownCount = 0; var out = it.answer(); if (out) say(out.parts, out.chips); return; }
+    if (it && it.id !== 'pedido') { answerIntent(it, text); reask(); return; }
+    say(['Puedes escribirme algo como <i>"10 de carne y 5 de pollo"</i> o usar los botones. Cuando termines, pulsa <b>Continuar</b> (o escribe "listo").'], []);
+  }
+
+  var ORDER_VERB = /\b(quiero|quisiera|necesito|pedir|pido|encargar|encargo|reservar|comprar|llevar|llevo|dame|ponme|mandame|me das|separame)\b/;
+  var PRICE_Q = /\b(precio|precios|cuesta|cuestan|cuanto|costo|sale|salen|vale|valen|total)\b/;
+
+  function handle(text) {
+    var n = norm(text);
+    if (order.active && /^(cancelar|cancela|salir|anular|olvidalo|olvidalo todo|ya no)$/.test(n)) { cancelOrder(); return; }
+    if (mode === 'cart') { handleCartText(text); return; }
+    var po = parseOrder(text), ex = extractExtras(text);
+    if (mode) {
+      if (po.items.length) { applyExtras(ex); absorb(po, text); resolvePending(); return; }   // corrige/agrega productos en cualquier paso
+      handleMode(text); return;
+    }
+    // modo libre
+    if (PRICE_Q.test(n) && /\b(las|los) de (3|5)\b/.test(n) && !po.items.length) { respond('precio'); return; }
+    if (PRICE_Q.test(n) && (po.items.length || po.looseQty.length === 1)) { quote(po); return; }
+    if (po.items.length) {
+      if (order.active && totals().units) { applyExtras(ex); absorb(po, text); resolvePending(); }   // ya había pedido: se agrega/ajusta
+      else orderFromText(po, ex, text);
+      return;
+    }
+    if ((po.looseQty.length === 1 || po.looseFlavors.length) && ORDER_VERB.test(n)) {
+      if (order.active && totals().units) { applyExtras(ex); absorb(po, text); resolvePending(); } else orderFromText(po, ex, text);
+      return;
+    }
+    if (order.active) {                                    // ajustes rápidos luego del resumen
+      var ln = lineFromText(n);
+      if (ln && /\b(mejor|cambia|cambiar|pasa|pasalo|todo|todas|todos|ya dije|dije)\b/.test(n) && totals().units) {
+        var moved = {}; Object.keys(cart).forEach(function (k) { var id = k.split('-')[0]; moved[id + '-' + ln] = (moved[id + '-' + ln] || 0) + cart[k]; });
+        cart = moved; order.defaultLine = ln; leadMsg = '✅ Listo, todo en línea ' + LINES[ln].short + '.'; showSummary(); return;
+      }
+      if (/\b(cambiar|cambia|corregir|editar) (el )?(nombre)\b/.test(n)) { order.name = ''; nextStep(); return; }
+      if (/\b(cambiar|cambia|corregir|editar) (la )?(fecha|hora|dia)\b/.test(n)) { order.when = ''; order.time = ''; order.date = null; nextStep(); return; }
+      if (/\b(cambiar|cambia|corregir|editar) (la )?(entrega|direccion)\b/.test(n)) { order.delivery = ''; order.address = ''; nextStep(); return; }
+      if (/\b(cambiar|cambia|editar|modificar) (el )?(pedido|productos|cantidad|cantidades)\b/.test(n)) { mode = 'cart'; say(['Ajusta tus empanadas 👇', cartWidget], []); return; }
+    }
+    var it = detect(text);
+    if (it) { answerIntent(it, text); return; }
+    if (lineFromText(n) && !order.active) { respond('premium'); return; }
     if (CONFIG.aiEndpoint) { setChips([]); queue = queue.then(function () { return askAI(text); }); return; }
     fallback(text);
   }
@@ -497,21 +1099,28 @@
     input.value = ''; addUser(text); setChips([]); handle(text);
   });
 
-  /* ══════════════ 8. APERTURA / CIERRE ══════════════ */
+  /* ══════════════ 9. APERTURA / CIERRE ══════════════ */
   function greet() {
+    var sat = today0().getDay() === 6;
     say(['¡Hola, guerrero/a del antojo! 🥷 Soy el <b>Sensei Ninja</b>, asistente de <b>Plan Ninja Empanada</b>.',
-         'Puedo contarte del menú, precios, horarios y delivery, o ayudarte a armar tu pedido para enviarlo por WhatsApp. ¿Por dónde empezamos?'], CHIPS.main);
+         sat ? '🔥 <b>¡Hoy es Sábado Ninja!</b> Las empanadas salen desde las <b>' + CONFIG.saturdayHour + '</b>, recién horneadas y bien calientitas.'
+             : '🔥 Nuestra próxima hornada es el <b>' + fmtDate(bakeDay()) + ' desde las ' + CONFIG.saturdayHour + '</b>, recién horneadas y bien calientitas. ¡Puedes reservar las tuyas desde ya!',
+         'Toca una opción 👇 o <b>escribe tu pedido directo</b>, por ejemplo: <i>\"20 de carne para el sábado\"</i>.'], CHIPS.main);
   }
   function open() {
     root.dataset.open = 'true'; panel.hidden = false; teaser.hidden = true;
     launcher.setAttribute('aria-expanded', 'true');
     if (!started) { started = true; greet(); }
+    $('pnb-status').textContent = statusPill();
     setTimeout(function () { input.focus({ preventScroll: true }); }, 60);
   }
   function close() {
     root.dataset.open = 'false'; panel.hidden = true; launcher.setAttribute('aria-expanded', 'false'); launcher.focus();
   }
-  function reset() { log.textContent = ''; setChips([]); mode = null; cart = {}; order = { name: '', when: '' }; history = []; unknownCount = 0; queue = Promise.resolve(); greet(); }
+  function reset() {
+    log.textContent = ''; setChips([]); mode = null; cart = {}; order = newOrder(); resetPend(); cartUI = null; leadMsg = '';
+    history = []; unknownCount = 0; queue = Promise.resolve(); greet();
+  }
 
   launcher.addEventListener('click', function () { root.dataset.open === 'true' ? close() : open(); });
   teaser.addEventListener('click', open);
@@ -519,6 +1128,8 @@
   $('pnb-reset').addEventListener('click', reset);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.dataset.open === 'true') close(); });
 
+  $('pnb-status').textContent = statusPill();
+  teaser.textContent = today0().getDay() === 6 ? '¡Hoy es Sábado Ninja! 🔥 Empanadas calientitas desde las ' + CONFIG.saturdayHour : '¿Antojo de empanadas? 🥟 Reserva para el sábado ninja';
   if (!stored('pnb_teaser')) {
     setTimeout(function () {
       if (root.dataset.open === 'true') return;
